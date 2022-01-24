@@ -34,8 +34,8 @@ $(BIN)LinkedListAPI.o: $(SRC)LinkedListAPI.c $(INC)LinkedListAPI.h
 ##############
 main: $(BIN)main
 
-$(BIN)main: $(PARSER_OBJ_FILES) $(INC)SVG*.h $(SRC)testMain.c
-	$(CC) $(CFLAGS) -I$(XML_PATH) -I$(PARSER_OBJ_FILES) -I$(INC) -o $(BIN)main $(SRC)testMain.c -lxml2 -lm
+$(BIN)main: $(INC) $(SRC)testMain.c $(SRC)SVG*.c $(SRC)LinkedListAPI.c
+	$(CC) $(CFLAGS) -I$(XML_PATH) -I$(INC) -o $(BIN)main $(SRC)SVG*.c $(SRC)LinkedListAPI.c $(SRC)testMain.c -lxml2 -lm
 #########
 
 clean:

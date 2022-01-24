@@ -12,16 +12,20 @@ SVG* createSVG(const char* fileName) {
     doc = xmlReadFile(fileName, NULL, 0);
 
     if (doc == NULL) {
-        fprintf(stderr, "Could not parse file: %s", fileName);
+        fprintf(stderr, "Could not parse file: %s\n", fileName);
+        return NULL;
     }
 
     rootElement = xmlDocGetRootElement(doc);
 
-    newSVG->rectangles = initializeList(rectangleToString, deleteRectangle, compareRectangles);
-    newSVG->circles = initializeList(circleToString, deleteCircle, compareCircles);
-    newSVG->paths = initializeList(pathToString, deletePath, comparePaths);
-    newSVG->groups = initializeList(groupToString, deleteGroup, compareGroups);
-    newSVG->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);
+    strcpy(newSVG->namespace, (char*)rootElement->ns->href);                                          // get the namespace
+    newSVG->rectangles = initializeList(rectangleToString, deleteRectangle, compareRectangles);       // create empty rect list
+    newSVG->circles = initializeList(circleToString, deleteCircle, compareCircles);                   // create empty circle list
+    newSVG->paths = initializeList(pathToString, deletePath, comparePaths);                           // create empty path list
+    newSVG->groups = initializeList(groupToString, deleteGroup, compareGroups);                       // create empty group list
+    newSVG->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
+
+    parseSVG(rootElement, newSVG, NULL);
 
     return newSVG;
 }

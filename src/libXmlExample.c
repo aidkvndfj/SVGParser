@@ -9,9 +9,9 @@
  * author: Dodji Seketeli
  * copy: see Copyright for the status of this software.
  */
-#include <stdio.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <stdio.h>
 
 /*
  *To compile this file using gcc you can type.  Alternatively, see the Makefile for include path settings
@@ -26,8 +26,7 @@
  * that are siblings or children of a given xml node.
  */
 static void
-print_element_names(xmlNode * a_node)
-{
+print_element_names(xmlNode *a_node) {
     xmlNode *cur_node = NULL;
 
     for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
@@ -37,14 +36,13 @@ print_element_names(xmlNode * a_node)
 
         // Uncomment the code below if you want to see the content of every node.
 
-        // if (cur_node->content != NULL ){
-        //     printf("  content: %s\n", cur_node->content);
-        // }
+        if (cur_node->content != NULL) {
+            printf("  content: %s\n", cur_node->content);
+        }
 
         // Iterate through every attribute of the current node
         xmlAttr *attr;
-        for (attr = cur_node->properties; attr != NULL; attr = attr->next)
-        {
+        for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
             xmlNode *value = attr->children;
             char *attrName = (char *)attr->name;
             char *cont = (char *)(value->content);
@@ -55,22 +53,19 @@ print_element_names(xmlNode * a_node)
     }
 }
 
-
 /**
- * Simple example to parse a file called "file.xml", 
- * walk down the DOM, and print the name of the 
+ * Simple example to parse a file called "file.xml",
+ * walk down the DOM, and print the name of the
  * xml elements nodes.
  */
-int
-main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     xmlDoc *doc = NULL;
     xmlNode *root_element = NULL;
 
-    if (argc != 2){
+    if (argc != 2) {
         printf("usage: xmlExample <someXMLfile>\n");
 
-        return(1);
+        return (1);
     }
 
     /*
