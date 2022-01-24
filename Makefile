@@ -31,6 +31,13 @@ $(BIN)liblist.so: $(BIN)LinkedListAPI.o
 $(BIN)LinkedListAPI.o: $(SRC)LinkedListAPI.c $(INC)LinkedListAPI.h
 	$(CC) $(CFLAGS) -c -fpic -I$(INC) $(SRC)LinkedListAPI.c -o $(BIN)LinkedListAPI.o
 
+##############
+main: $(BIN)main
+
+$(BIN)main: $(PARSER_OBJ_FILES) $(INC)SVG*.h $(SRC)testMain.c
+	$(CC) $(CFLAGS) -I$(XML_PATH) -I$(PARSER_OBJ_FILES) -I$(INC) -o $(BIN)main $(SRC)testMain.c -lxml2 -lm
+#########
+
 clean:
 	rm -rf $(BIN)StructListDemo $(BIN)xmlExample $(BIN)*.o $(BIN)*.so
 
