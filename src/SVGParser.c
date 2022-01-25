@@ -32,6 +32,33 @@ SVG* createSVG(const char* fileName) {
     return newSVG;
 }
 
+char* SVGToString(const SVG* img) {
+    char* tmpStr;
+
+    char* rectStr = toString(img->rectangles);
+    char* circleStr = toString(img->circles);
+    char* pathStr = toString(img->paths);
+    char* groupStr = toString(img->groups);
+    char* attrStr = toString(img->otherAttributes);
+
+    int len = strlen(rectStr) + strlen(circleStr) + strlen(pathStr) + strlen(groupStr) + strlen(attrStr) + strlen(img->namespace) + strlen(img->title) + strlen(img->description) + 100;
+    tmpStr = (char*)malloc(sizeof(char) * len);
+    sprintf(tmpStr, "Namespace: %s\nTitle: %s\nDescrpition: %s\n\n", img->namespace, img->title, img->description);
+    strcat(tmpStr, rectStr);
+    strcat(tmpStr, circleStr);
+    strcat(tmpStr, pathStr);
+    strcat(tmpStr, groupStr);
+    strcat(tmpStr, attrStr);
+
+    free(rectStr);
+    free(circleStr);
+    free(pathStr);
+    free(groupStr);
+    free(attrStr);
+
+    return tmpStr;
+}
+
 void deleteSVG(SVG* img) {
     freeList(img->rectangles);
     freeList(img->circles);
@@ -132,7 +159,7 @@ char* groupToString(void* data) {
     tmpAttrStr = toString(tmpData->otherAttributes);
 
     // make the size 64 for the prints, plus 7 chars for each number.
-    len = strlen(tmpRectStr) + strlen(tmpCircleStr) + strlen(tmpPathStr) + strlen(tmpGroupStr) + strlen(tmpAttrStr) + 85;
+    len = strlen(tmpRectStr) + strlen(tmpCircleStr) + strlen(tmpPathStr) + strlen(tmpGroupStr) + strlen(tmpAttrStr) + 100;
     tmpStr = (char*)malloc(len * sizeof(char));
 
     // print the data to the tmp string

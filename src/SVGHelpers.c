@@ -26,6 +26,19 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
         */
 
         // if the node is the title, set the SVG title to the childrens content, aka the title content.
+        if (strcmp((char*)currNode->name, "svg") == 0) {
+            xmlAttr* attr;  // create a new attribute to manipulate the other attributes
+
+            for (attr = currNode->properties; attr != NULL; attr = attr->next) {  // loop through all the attributes
+                xmlNode* value = attr->children;                                  // set value to the child for easier access to the content
+
+                Attribute* tmpAttr = (Attribute*)malloc(sizeof(Attribute) + strlen((char*)value->content) + 1);  // create new attribute
+                tmpAttr->name = malloc(strlen((char*)attr->name) + 1);                                           // malloc space for the name
+                strcpy(tmpAttr->name, (char*)attr->name);                                                        // set the name to the attributes name
+                strcpy(tmpAttr->value, (char*)value->content);                                                   // set the content to the attributes content
+                insertBack(currSVG->otherAttributes, tmpAttr);                                                   // insert the attribute to the back of the list
+            }
+        }
         if (strcmp((char*)currNode->name, "title") == 0) {
             strcpy(currSVG->title, (char*)currNode->children->content);
         }
@@ -176,6 +189,17 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
         if (strcmp((char*)currNode->name, "g") == 0) {
             Group* newGroup = createNewGroup();
             parseSVG(currNode->children, NULL, newGroup);
+
+            xmlAttr* attr;
+            for (attr = currNode->properties; attr != NULL; attr = attr->next) {  // loop through all the attributes
+                xmlNode* value = attr->children;                                  // set value to the child for easier access to the content
+
+                Attribute* tmpAttr = (Attribute*)malloc(sizeof(Attribute) + strlen((char*)value->content) + 1);  // create new attribute
+                tmpAttr->name = malloc(strlen((char*)attr->name) + 1);                                           // malloc space for the name
+                strcpy(tmpAttr->name, (char*)attr->name);                                                        // set the name to the attributes name
+                strcpy(tmpAttr->value, (char*)value->content);                                                   // set the content to the attributes content
+                insertBack(newGroup->otherAttributes, tmpAttr);                                                  // insert the attribute to the back of the list
+            }
 
             if (currGroup == NULL) {
                 printf("added group to SVG\n");
