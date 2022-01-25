@@ -10,5 +10,7 @@
 #include "SVGParser.h"
 
 void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup);
+float removeUnits(char* string, char* unitsStr);
+Group* createNewGroup();
 
 #endif
