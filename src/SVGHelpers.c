@@ -133,6 +133,7 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
 
             // printf("x: %lf\ny: %lf\nwidth: %lf\nheight: %lf\nUnits: %s\nOther Attributes:N/A\n", newRect->x, newRect->y, newRect->width, newRect->height, newRect->units);
 
+            // printf("parent: %s\n", currNode->parent->name);
             if (currGroup == NULL) {  // if there is no group, save the new circle to the SVG
                 printf("save circle to SVG\n");
                 insertBack(currSVG->circles, newCircle);
@@ -142,8 +143,59 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
                 insertBack(currGroup->circles, newCircle);
             }
         }
+        else if (strcmp((char*)currNode->name, "path") == 0) {
+            xmlAttr* attr;                                                                                     // create a new attribute to manipulate the other attributes
+            Path* newPath = (Path*)malloc(sizeof(Path));                                                       // create a new path
+            newPath->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // initalize the attributes list
 
-        parseSVG(currNode->children, currSVG, NULL);
+            for (attr = currNode->properties; attr != NULL; attr = attr->next) {  // loop through all the attributes
+                xmlNode* value = attr->children;                                  // set value to the child for easier access to the content
+
+                if (strcmp((char*)attr->name, "d") == 0) {  // if the attribute is data
+                    newPath = realloc(newPath, (sizeof(Path) + strlen((char*)value->content) + 1));
+                    strcpy(newPath->data, (char*)value->content);  // set the new paths data to the attribututes data.
+                }
+                else {                                                                                               // if it is another attribute
+                    Attribute* tmpAttr = (Attribute*)malloc(sizeof(Attribute) + strlen((char*)value->content) + 1);  // create new attribute
+                    tmpAttr->name = malloc(strlen((char*)attr->name) + 1);                                           // malloc space for the name
+                    strcpy(tmpAttr->name, (char*)attr->name);                                                        // set the name to the attributes name
+                    strcpy(tmpAttr->value, (char*)value->content);                                                   // set the content to the attributes content
+                    insertBack(newPath->otherAttributes, tmpAttr);                                                   // insert the attribute to the back of the list
+                }
+            }
+
+            if (currGroup == NULL) {  // if there is no group, save the new path to the svg
+                printf("Save path to SVG\n");
+                insertBack(currSVG->paths, newPath);
+            }
+            else {  // if there is a group, save the new path to the group
+                printf("Save path to Group\n");
+                insertBack(currGroup->paths, newPath);
+            }
+        }
+        if (strcmp((char*)currNode->name, "g") == 0) {
+            Group* newGroup = createNewGroup();
+            parseSVG(currNode->children, NULL, newGroup);
+
+            if (currGroup == NULL) {
+                printf("added group to SVG\n");
+                insertBack(currSVG->groups, newGroup);
+            }
+            else {
+                printf("added group to Group\n");
+                insertBack(currGroup->groups, newGroup);
+            }
+        }
+        else {
+            parseSVG(currNode->children, currSVG, NULL);
+        }
+
+        // if (currGroup == NULL) {
+        //     parseSVG(currNode->children, currSVG, NULL);
+        // }
+        // else {
+        //     parseSVG(currNode->children, NULL, currGroup);
+        // }
     }
 }
 
@@ -173,4 +225,14 @@ float removeUnits(char* string, char* unitsStr) {
     unitsStr[numUnitChars] = '\0';
 
     return (atof(otherString));
+}
+
+Group* createNewGroup() {
+    Group* newGroup = (Group*)malloc(sizeof(Group));
+    newGroup->rectangles = initializeList(rectangleToString, deleteRectangle, compareRectangles);       // create empty rect list
+    newGroup->circles = initializeList(circleToString, deleteCircle, compareCircles);                   // create empty circle list
+    newGroup->paths = initializeList(pathToString, deletePath, comparePaths);                           // create empty path list
+    newGroup->groups = initializeList(groupToString, deleteGroup, compareGroups);                       // create empty group list
+    newGroup->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
+    return newGroup;
 }
