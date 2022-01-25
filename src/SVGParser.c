@@ -26,8 +26,19 @@ SVG* createSVG(const char* fileName) {
     newSVG->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
 
     parseSVG(rootElement, newSVG, NULL);
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
 
     return newSVG;
+}
+
+void deleteSVG(SVG* img) {
+    freeList(img->rectangles);
+    freeList(img->circles);
+    freeList(img->paths);
+    freeList(img->groups);
+    freeList(img->otherAttributes);
+    free(img);
 }
 
 //~~~~~~~~ Helper Functions ~~~~~~~~//
@@ -46,6 +57,7 @@ void deleteAttribute(void* data) {
 
     // free the name and the data.
     free(tmpData->name);
+    // free(tmpData->value);
     free(tmpData);
 }
 
