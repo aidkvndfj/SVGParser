@@ -44,6 +44,8 @@ char* SVGToString(const SVG* img) {
     int len = strlen(rectStr) + strlen(circleStr) + strlen(pathStr) + strlen(groupStr) + strlen(attrStr) + strlen(img->namespace) + strlen(img->title) + strlen(img->description) + 140;
     tmpStr = (char*)malloc(sizeof(char) * len);
     sprintf(tmpStr, "Namespace: %s\nTitle: %s\nDescrpition: %s\n\n", img->namespace, img->title, img->description);
+    strcat(tmpStr, "\nSVG Other Attributes: \n");
+    strcat(tmpStr, attrStr);
     strcat(tmpStr, "\nSVG Rectangles: \n");
     strcat(tmpStr, rectStr);
     strcat(tmpStr, "\nSVG Circles: \n");
@@ -52,8 +54,6 @@ char* SVGToString(const SVG* img) {
     strcat(tmpStr, pathStr);
     strcat(tmpStr, "\nSVG Groups: \n");
     strcat(tmpStr, groupStr);
-    strcat(tmpStr, "\nSVG Other Attributes: \n");
-    strcat(tmpStr, attrStr);
 
     free(rectStr);
     free(circleStr);

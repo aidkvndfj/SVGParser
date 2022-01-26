@@ -6,25 +6,6 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
     xmlNode* currNode = NULL;
 
     for (currNode = rootNode; currNode != NULL; currNode = currNode->next) {
-        /*
-        // print out the node name and content for reference
-        if (currNode->type == XML_ELEMENT_NODE) {
-            printf("node type: Element, name: %s\n", currNode->name);
-        }
-        if (currNode->content != NULL) {
-            printf("  content: %s\n", currNode->content);
-        }
-
-        // Iterate through every attribute of the current node for reference
-        xmlAttr* attr;
-        for (attr = currNode->properties; attr != NULL; attr = attr->next) {
-            xmlNode* value = attr->children;
-            char* attrName = (char*)attr->name;
-            char* cont = (char*)(value->content);
-            printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
-        }
-        */
-
         // if the node is the title, set the SVG title to the childrens content, aka the title content.
         if (strcmp((char*)currNode->name, "svg") == 0) {
             xmlAttr* attr;  // create a new attribute to manipulate the other attributes
@@ -95,11 +76,11 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
             // printf("x: %lf\ny: %lf\nwidth: %lf\nheight: %lf\nUnits: %s\nOther Attributes:N/A\n", newRect->x, newRect->y, newRect->width, newRect->height, newRect->units);
 
             if (currGroup == NULL) {  // if there is no group, save the new rect to the SVG
-                printf("save rect to SVG\n");
+                // printf("save rect to SVG\n");
                 insertBack(currSVG->rectangles, newRect);
             }
             else {  // if there is a group, save the new rect to the group
-                printf("save rect to Group\n");
+                // printf("save rect to Group\n");
                 insertBack(currGroup->rectangles, newRect);
             }
         }
@@ -148,11 +129,11 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
 
             // printf("parent: %s\n", currNode->parent->name);
             if (currGroup == NULL) {  // if there is no group, save the new circle to the SVG
-                printf("save circle to SVG\n");
+                // printf("save circle to SVG\n");
                 insertBack(currSVG->circles, newCircle);
             }
             else {  // if there is a group, save the new circle to the group
-                printf("save circle to Group\n");
+                // printf("save circle to Group\n");
                 insertBack(currGroup->circles, newCircle);
             }
         }
@@ -178,11 +159,11 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
             }
 
             if (currGroup == NULL) {  // if there is no group, save the new path to the svg
-                printf("Save path to SVG\n");
+                // printf("Save path to SVG\n");
                 insertBack(currSVG->paths, newPath);
             }
             else {  // if there is a group, save the new path to the group
-                printf("Save path to Group\n");
+                // printf("Save path to Group\n");
                 insertBack(currGroup->paths, newPath);
             }
         }
@@ -202,11 +183,11 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
             }
 
             if (currGroup == NULL) {
-                printf("added group to SVG\n");
+                // printf("added group to SVG\n");
                 insertBack(currSVG->groups, newGroup);
             }
             else {
-                printf("added group to Group\n");
+                // printf("added group to Group\n");
                 insertBack(currGroup->groups, newGroup);
             }
         }
@@ -246,7 +227,9 @@ float removeUnits(char* string, char* unitsStr) {
     }
 
     otherString[numValChars] = '\0';
-    unitsStr[numUnitChars] = '\0';
+
+    if (setUnits)
+        unitsStr[numUnitChars] = '\0';
 
     return (atof(otherString));
 }
