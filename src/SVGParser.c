@@ -41,13 +41,18 @@ char* SVGToString(const SVG* img) {
     char* groupStr = toString(img->groups);
     char* attrStr = toString(img->otherAttributes);
 
-    int len = strlen(rectStr) + strlen(circleStr) + strlen(pathStr) + strlen(groupStr) + strlen(attrStr) + strlen(img->namespace) + strlen(img->title) + strlen(img->description) + 100;
+    int len = strlen(rectStr) + strlen(circleStr) + strlen(pathStr) + strlen(groupStr) + strlen(attrStr) + strlen(img->namespace) + strlen(img->title) + strlen(img->description) + 140;
     tmpStr = (char*)malloc(sizeof(char) * len);
     sprintf(tmpStr, "Namespace: %s\nTitle: %s\nDescrpition: %s\n\n", img->namespace, img->title, img->description);
+    strcat(tmpStr, "\nSVG Rectangles: \n");
     strcat(tmpStr, rectStr);
+    strcat(tmpStr, "\nSVG Circles: \n");
     strcat(tmpStr, circleStr);
+    strcat(tmpStr, "\nSVG Paths: \n");
     strcat(tmpStr, pathStr);
+    strcat(tmpStr, "\nSVG Groups: \n");
     strcat(tmpStr, groupStr);
+    strcat(tmpStr, "\nSVG Other Attributes: \n");
     strcat(tmpStr, attrStr);
 
     free(rectStr);
@@ -106,7 +111,7 @@ char* attributeToString(void* data) {
     tmpStr = (char*)malloc(len * sizeof(char));
 
     // print the data to the tmp string
-    sprintf(tmpStr, "Name: %s\n Data: %s\n\n", tmpData->name, tmpData->value);
+    sprintf(tmpStr, "Name: %s\n Data: %s\n", tmpData->name, tmpData->value);
 
     return tmpStr;
 }
@@ -163,7 +168,13 @@ char* groupToString(void* data) {
     tmpStr = (char*)malloc(len * sizeof(char));
 
     // print the data to the tmp string
-    sprintf(tmpStr, "Rectangles:\n%sCircles:\n%sPaths:\n%sGroups:\n%sOther Attributes:\n%s", tmpRectStr, tmpCircleStr, tmpPathStr, tmpGroupStr, tmpAttrStr);
+    sprintf(tmpStr, "\nRectangles:\n%s\nCircles:\n%s\nPaths:\n%s\nGroups:\n%s\nOther Attributes:\n%s\n", tmpRectStr, tmpCircleStr, tmpPathStr, tmpGroupStr, tmpAttrStr);
+
+    free(tmpRectStr);
+    free(tmpCircleStr);
+    free(tmpPathStr);
+    free(tmpGroupStr);
+    free(tmpAttrStr);
 
     return tmpStr;
 }
@@ -206,6 +217,8 @@ char* rectangleToString(void* data) {
 
     // print the data to the tmp string
     sprintf(tmpStr, "x: %lf\ny: %lf\nwidth: %lf\nheight: %lf\nUnits: %s\nOther Attributes:\n%s", tmpData->x, tmpData->y, tmpData->width, tmpData->height, tmpData->units, tmpAttrStr);
+
+    free(tmpAttrStr);
 
     return tmpStr;
 }
@@ -253,6 +266,8 @@ char* circleToString(void* data) {
     // print the data to the tmp string
     sprintf(tmpStr, "cx: %lf\ncy: %lf\nr: %lf\nUnits: %s\nOther Attributes:\n%s", tmpData->cx, tmpData->cy, tmpData->r, tmpData->units, tmpAttrStr);
 
+    free(tmpAttrStr);
+
     return tmpStr;
 }
 
@@ -293,11 +308,13 @@ char* pathToString(void* data) {
     tmpAttrStr = toString(tmpData->otherAttributes);
 
     // make the size the len of the 2 strings, plus 20 for other chars
-    len = strlen(tmpData->data) + strlen(tmpAttrStr) + 30;
+    len = strlen(tmpData->data) + strlen(tmpAttrStr) + 40;
     tmpStr = (char*)malloc(len * sizeof(char));
 
     // print the data to the tmp string
     sprintf(tmpStr, "Other Attributes:\n%sData: %s\n", tmpAttrStr, tmpData->data);
+
+    free(tmpAttrStr);
 
     return tmpStr;
 }
