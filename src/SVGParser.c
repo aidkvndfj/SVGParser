@@ -73,6 +73,52 @@ void deleteSVG(SVG* img) {
     free(img);
 }
 
+//~~~~~~~~ M2 Functions ~~~~~~~~~//
+
+// Function that returns a list of all rectangles in the struct.
+List* getRects(const SVG* img) {
+    if (img == NULL)
+        return NULL;
+
+    if (img->rectangles == NULL)
+        return initializeList(rectangleToString, deleteRectangle, compareRectangles);
+
+    return img->rectangles;
+}
+
+// Function that returns a list of all circles in the struct.
+List* getCircles(const SVG* img) {
+    if (img == NULL)
+        return NULL;
+
+    if (img->circles == NULL)
+        return initializeList(circleToString, deleteCircle, compareCircles);
+
+    return img->circles;
+}
+
+// Function that returns a list of all groups in the struct.
+List* getGroups(const SVG* img) {
+    if (img == NULL)
+        return NULL;
+
+    if (img->groups == NULL)
+        return initializeList(groupToString, deleteGroup, compareGroups);
+
+    return img->groups;
+}
+
+// Function that returns a list of all paths in the struct.
+List* getPaths(const SVG* img) {
+    if (img == NULL)
+        return NULL;
+
+    if (img->paths == NULL)
+        return initializeList(pathToString, deletePath, comparePaths);
+
+    return img->paths;
+}
+
 //~~~~~~~~ Helper Functions ~~~~~~~~//
 
 // Attributes
