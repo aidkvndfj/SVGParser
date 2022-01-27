@@ -2,6 +2,8 @@
 
 #include "SVGHelpers.h"
 
+#define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491298336733624406566430860213949463952247371907021798609437027705392171762931767523846748184676694051320005681271452635608277857713427577896091736371787214684409012249534301465495853710507922796892589235420199561121290219608640344181598136297747713099605187072113499999983729780499510597317328160963185950244594553469083026425223082533446850352619311881710100031378387528865875332083814206171776691473035982534904287554687311595628638823537875937519577818577805321712268066130019278766111959092164201989
+
 //~~~~~~~~ Parser Functions ~~~~~~~~//
 SVG* createSVG(const char* fileName) {
     SVG* newSVG = NULL;
@@ -26,6 +28,7 @@ SVG* createSVG(const char* fileName) {
     newSVG->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
 
     parseSVG(rootElement, newSVG, NULL);
+
     xmlFreeDoc(doc);
     xmlCleanupParser();
 
@@ -73,8 +76,7 @@ void deleteSVG(SVG* img) {
     free(img);
 }
 
-//~~~~~~~~ M2 Functions ~~~~~~~~~//
-
+//~~~~~~~~ Accessors ~~~~~~~~~//
 // Function that returns a list of all rectangles in the struct.
 List* getRects(const SVG* img) {
     if (img == NULL)
@@ -118,6 +120,73 @@ List* getPaths(const SVG* img) {
 
     return img->paths;
 }
+
+//~~~~~~~~ Summaries ~~~~~~~~~//
+// Function that returns the number of all rectangles with the specified area
+int numRectsWithArea(const SVG* img, float area) {
+    if (img == NULL || area < 0) {
+        return 0;
+    }
+
+    ListIterator iter = createIterator(img->rectangles);
+    Rectangle* currRect;
+    void* elem;
+    int numRects;
+
+    while ((elem = nextElement(&iter)) != NULL) {
+        currRect = (Rectangle*)elem;
+        if (ceil(currRect->x * currRect->y) == ceil(area)) {
+            numRects += 1;
+        }
+    }
+
+    return numRects;
+}
+
+// Function that returns the number of all circles with the specified area
+int numCirclesWithArea(const SVG* img, float area) {
+    if (img == NULL || area < 0) {
+        return 0;
+    }
+
+    ListIterator iter = createIterator(img->circles);
+    Circle* currCircle;
+    void* elem;
+    int numCircle;
+
+    while ((elem = nextElement(&iter)) != NULL) {
+        currCircle = (Circle*)elem;
+        if (ceil(PI * (currCircle->r * currCircle->r)) == ceil(area)) {
+            numCircle += 1;
+        }
+    }
+
+    return numCircle;
+}
+
+// Function that returns the number of all paths with the specified data
+int numPathsWithdata(const SVG* img, const char* data) {
+    if (img == NULL || data == NULL) {
+        return 0;
+    }
+
+    ListIterator iter = createIterator(img->circles);
+    Path* currPath;
+    void* elem;
+    int numPaths;
+
+    while ((elem = nextElement(&iter)) != NULL) {
+        currPath = (Path*)elem;
+        if (strcmp(currPath->data, data) == 0) {
+            numPaths += 1;
+        }
+    }
+
+    return numPaths;
+}
+
+// Function that returns the number of all groups with the specified length
+int numGroupsWithLen(const SVG* img, int len);
 
 //~~~~~~~~ Helper Functions ~~~~~~~~//
 

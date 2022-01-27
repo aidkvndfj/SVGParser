@@ -6,6 +6,7 @@
 #include <libxml/tree.h>
 #include <libxml/xmlschemastypes.h>
 #include <libxml/xmlwriter.h>
+#include <math.h>
 
 #include "SVGParser.h"
 
