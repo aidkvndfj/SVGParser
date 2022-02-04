@@ -10,8 +10,41 @@
 
 #include "SVGParser.h"
 
+#define PI 3.1415926535897932384626433832795
+
+// parse the SVG file for all elemtns
 void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup);
+
+// remove the units off of attribtues
 float removeUnits(char* string, char* unitsStr);
+
+// initalize a new group
 Group* createNewGroup();
+
+// Recursively go through the group, and add all rects to rectList
+void addGroupRects(List* rectList, Group* group);
+
+// Recursively go through the group, and add all circles to circleList
+void addGroupCircles(List* circleList, Group* group);
+
+// Recursively go through the group, and add all paths to pathList
+void addGroupPaths(List* PathList, Group* group);
+
+// Recursively go through the group, and add all groups to groupList
+void addGroupGroups(List* GroupList, Group* group);
+
+// count the total number of other attributes in a list of rects
+int numAttrInRectList(List* rectList);
+
+// count the total number of other attributes in a list of circless
+int numAttrInCircleList(List* circleList);
+
+// count the total number of other attributes in a list of paths
+int numAttrInPathList(List* pathList);
+
+// count the total number of other attributes in a list of groups
+int numAttrInGroupList(List* groupList);
+
+void freeListKeepData(List* list);
 
 #endif
