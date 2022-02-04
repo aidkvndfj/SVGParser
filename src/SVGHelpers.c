@@ -38,49 +38,34 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
 
                 if (strcmp((char*)attr->name, "x") == 0) {  // if attribute is x
                     // set the x to the attributres contents, and parse the unit to the newRects unit if there are any
-                    // printf("Loop1\n");
                     newRect->x = removeUnits((char*)value->content, newRect->units);
                 }
                 else if (strcmp((char*)attr->name, "y") == 0) {  // if attribute is y
                     // set the y to the attributres contents, and parse the unit to the newRects unit if there are any
-                    // printf("Loop2\n");
                     newRect->y = removeUnits((char*)value->content, newRect->units);
                 }
                 else if (strcmp((char*)attr->name, "width") == 0) {  // if attribute is width
                     // set the width to the attributres contents, and parse the unit to the newRects unit if there are any
-                    // printf("Loop3\n");
                     newRect->width = removeUnits((char*)value->content, newRect->units);
                 }
                 else if (strcmp((char*)attr->name, "height") == 0) {  // if attribute is height
                     // set the height to the attributres contents, and parse the unit to the newRects unit if there are any
-                    // printf("Loop4\n");
                     newRect->height = removeUnits((char*)value->content, newRect->units);
                 }
                 else {
-                    // printf("Loop5\n");
-                    // printf("%s|%s\n", (char*)attr->name, (char*)value->content);
-
                     // if it is another attribute
-                    // printf("add to list0\n");
                     Attribute* tmpAttr = (Attribute*)malloc(sizeof(Attribute) + strlen((char*)value->content) + 1);  // create new attribute
                     tmpAttr->name = malloc(strlen((char*)attr->name) + 1);
-                    // printf("add to list1\n");
-                    strcpy(tmpAttr->name, (char*)attr->name);  // set the name to the attributes name
-                    // printf("add to list2\n");
+                    strcpy(tmpAttr->name, (char*)attr->name);       // set the name to the attributes name
                     strcpy(tmpAttr->value, (char*)value->content);  // set the content to the attributes content
-                    // printf("add to list3\n");
                     insertBack(newRect->otherAttributes, tmpAttr);  // insert the attribute to the back of the list
                 }
             }
 
-            // printf("x: %lf\ny: %lf\nwidth: %lf\nheight: %lf\nUnits: %s\nOther Attributes:N/A\n", newRect->x, newRect->y, newRect->width, newRect->height, newRect->units);
-
             if (currGroup == NULL) {  // if there is no group, save the new rect to the SVG
-                // printf("save rect to SVG\n");
                 insertBack(currSVG->rectangles, newRect);
             }
             else {  // if there is a group, save the new rect to the group
-                // printf("save rect to Group\n");
                 insertBack(currGroup->rectangles, newRect);
             }
         }
@@ -95,45 +80,30 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
 
                 if (strcmp((char*)attr->name, "cx") == 0) {  // if attribute is cx
                     // set the cx to the attributres contents, and parse the unit to the newCircles unit if there are any
-                    // printf("Loop1\n");
                     newCircle->cx = removeUnits((char*)value->content, newCircle->units);
                 }
                 else if (strcmp((char*)attr->name, "cy") == 0) {  // if attribute is cy
                     // set the cy to the attributres contents, and parse the unit to the newCircles unit if there are any
-                    // printf("Loop2\n");
                     newCircle->cy = removeUnits((char*)value->content, newCircle->units);
                 }
                 else if (strcmp((char*)attr->name, "r") == 0) {  // if attribute is r
                     // set the r to the attributres contents, and parse the unit to the newCircles unit if there are any
-                    // printf("Loop3\n");
                     newCircle->r = removeUnits((char*)value->content, newCircle->units);
                 }
                 else {
-                    // printf("Loop5\n");
-                    // printf("%s|%s\n", (char*)attr->name, (char*)value->content);
-
                     // if it is another attribute
-                    // printf("add to list0\n");
                     Attribute* tmpAttr = (Attribute*)malloc(sizeof(Attribute) + strlen((char*)value->content) + 1);  // create new attribute
                     tmpAttr->name = malloc(strlen((char*)attr->name) + 1);
-                    // printf("add to list1\n");
-                    strcpy(tmpAttr->name, (char*)attr->name);  // set the name to the attributes name
-                    // printf("add to list2\n");
-                    strcpy(tmpAttr->value, (char*)value->content);  // set the content to the attributes content
-                    // printf("add to list3\n");
+                    strcpy(tmpAttr->name, (char*)attr->name);         // set the name to the attributes name
+                    strcpy(tmpAttr->value, (char*)value->content);    // set the content to the attributes content
                     insertBack(newCircle->otherAttributes, tmpAttr);  // insert the attribute to the back of the list
                 }
             }
 
-            // printf("x: %lf\ny: %lf\nwidth: %lf\nheight: %lf\nUnits: %s\nOther Attributes:N/A\n", newRect->x, newRect->y, newRect->width, newRect->height, newRect->units);
-
-            // printf("parent: %s\n", currNode->parent->name);
             if (currGroup == NULL) {  // if there is no group, save the new circle to the SVG
-                // printf("save circle to SVG\n");
                 insertBack(currSVG->circles, newCircle);
             }
             else {  // if there is a group, save the new circle to the group
-                // printf("save circle to Group\n");
                 insertBack(currGroup->circles, newCircle);
             }
         }
@@ -159,11 +129,9 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
             }
 
             if (currGroup == NULL) {  // if there is no group, save the new path to the svg
-                // printf("Save path to SVG\n");
                 insertBack(currSVG->paths, newPath);
             }
             else {  // if there is a group, save the new path to the group
-                // printf("Save path to Group\n");
                 insertBack(currGroup->paths, newPath);
             }
         }
@@ -183,42 +151,33 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
             }
 
             if (currGroup == NULL) {
-                // printf("added group to SVG\n");
                 insertBack(currSVG->groups, newGroup);
             }
             else {
-                // printf("added group to Group\n");
                 insertBack(currGroup->groups, newGroup);
             }
         }
         else {
             parseSVG(currNode->children, currSVG, NULL);
         }
-
-        // if (currGroup == NULL) {
-        //     parseSVG(currNode->children, currSVG, NULL);
-        // }
-        // else {
-        //     parseSVG(currNode->children, NULL, currGroup);
-        // }
     }
 }
 
 float removeUnits(char* string, char* unitsStr) {
     char otherString[50] = "";
-    char numberString[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    char numberString[11] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'};
     int numValChars = 0;
     int numUnitChars = 0;
     int setUnits = strlen(unitsStr) == 0;
 
     for (int i = 0; string[i] != '\0'; i++) {
-        for (int j = 0; j < 10; j++) {
+        for (int j = 0; j < 11; j++) {
             if ((string[i] == numberString[j]) || (j == 0 && string[i] == '-')) {
                 otherString[numValChars] = string[i];
                 numValChars++;
                 break;
             }
-            else if (setUnits && j == 9) {
+            else if (setUnits && j == 10) {
                 unitsStr[numUnitChars] = string[i];
                 numUnitChars++;
                 break;
@@ -242,4 +201,176 @@ Group* createNewGroup() {
     newGroup->groups = initializeList(groupToString, deleteGroup, compareGroups);                       // create empty group list
     newGroup->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
     return newGroup;
+}
+
+// Recursively go through the group, and add all rects to rectList
+void addGroupRects(List* rectList, Group* group) {
+    void* elem;
+    Rectangle* currRect;
+    Group* currGroup;
+
+    ListIterator rectIter = createIterator(group->rectangles);
+    ListIterator groupIter = createIterator(group->groups);
+
+    // loop through the rectanlges, and add the current rect to the total rects list
+    while ((elem = nextElement(&rectIter)) != NULL) {
+        currRect = (Rectangle*)elem;
+        insertBack(rectList, currRect);
+    }
+
+    // loop through all the groups and add their rects to the total rects list
+    while ((elem = nextElement(&groupIter)) != NULL) {
+        currGroup = (Group*)elem;
+        addGroupRects(rectList, currGroup);
+    }
+}
+
+// Recursively go through the group, and add all circles to circleList
+void addGroupCircles(List* circleList, Group* group) {
+    void* elem;
+    Circle* currCircle;
+    Group* currGroup;
+
+    ListIterator circleIter = createIterator(group->circles);
+    ListIterator groupIter = createIterator(group->groups);
+
+    // loop through the circleanlges, and add the current circle to the total circles list
+    while ((elem = nextElement(&circleIter)) != NULL) {
+        currCircle = (Circle*)elem;
+        insertBack(circleList, currCircle);
+    }
+
+    // loop through all the groups and add their circles to the total circles list
+    while ((elem = nextElement(&groupIter)) != NULL) {
+        currGroup = (Group*)elem;
+        addGroupCircles(circleList, currGroup);
+    }
+}
+
+// Recursively go through the group, and add all paths to pathList
+void addGroupPaths(List* pathList, Group* group) {
+    void* elem;
+    Path* currPath;
+    Group* currGroup;
+
+    ListIterator PathIter = createIterator(group->paths);
+    ListIterator groupIter = createIterator(group->groups);
+
+    // loop through the Pathanlges, and add the current Path to the total Paths list
+    while ((elem = nextElement(&PathIter)) != NULL) {
+        currPath = (Path*)elem;
+        insertBack(pathList, currPath);
+    }
+
+    // loop through all the groups and add their Paths to the total Paths list
+    while ((elem = nextElement(&groupIter)) != NULL) {
+        currGroup = (Group*)elem;
+        addGroupPaths(pathList, currGroup);
+    }
+}
+
+// Recursively go through the group, and add all groups to groupList
+void addGroupGroups(List* groupList, Group* group) {
+    void* elem;
+    Group* currGroup;
+
+    ListIterator groupIter = createIterator(group->groups);
+
+    // loop through all the groups and add their Paths to the total Paths list
+    while ((elem = nextElement(&groupIter)) != NULL) {
+        currGroup = (Group*)elem;
+        insertBack(groupList, currGroup);
+        addGroupPaths(groupList, currGroup);
+    }
+}
+
+// count the total number of other attributes in a list of rects
+int numAttrInRectList(List* rectList) {
+    void* elem;
+    Rectangle* currRectangle;
+
+    ListIterator groupIter = createIterator(rectList);
+    int totalAttributes = 0;
+
+    // loop through all the Rects and add their other attributes to total attributes
+    while ((elem = nextElement(&groupIter)) != NULL) {
+        currRectangle = (Rectangle*)elem;
+        totalAttributes += getLength(currRectangle->otherAttributes);
+    }
+
+    return totalAttributes;
+}
+
+// count the total number of other attributes in a list of circless
+int numAttrInCircleList(List* circleList) {
+    void* elem;
+    Circle* currCircle;
+
+    ListIterator groupIter = createIterator(circleList);
+    int totalAttributes = 0;
+
+    // loop through all the Rects and add their other attributes to total attributes
+    while ((elem = nextElement(&groupIter)) != NULL) {
+        currCircle = (Circle*)elem;
+        totalAttributes += getLength(currCircle->otherAttributes);
+    }
+
+    return totalAttributes;
+}
+
+// count the total number of other attributes in a list of paths
+int numAttrInPathList(List* pathList) {
+    void* elem;
+    Path* currPath;
+
+    ListIterator groupIter = createIterator(pathList);
+    int totalAttributes = 0;
+
+    // loop through all the Rects and add their other attributes to total attributes
+    while ((elem = nextElement(&groupIter)) != NULL) {
+        currPath = (Path*)elem;
+        totalAttributes += getLength(currPath->otherAttributes);
+    }
+
+    return totalAttributes;
+}
+
+// count the total number of other attributes in a list of groups
+int numAttrInGroupList(List* groupList) {
+    void* elem;
+    Group* currGroup;
+
+    ListIterator groupIter = createIterator(groupList);
+    int totalAttributes = 0;
+
+    // loop through all the Rects and add their other attributes to total attributes
+    while ((elem = nextElement(&groupIter)) != NULL) {
+        currGroup = (Group*)elem;
+        totalAttributes += getLength(currGroup->otherAttributes);
+    }
+
+    return totalAttributes;
+    return 0;
+}
+
+void freeListKeepData(List* list) {
+    // if list is nul, nothing to free
+    if (list == NULL)
+        return;
+
+    // if list head and tail null, nothing to free
+    if (list->head == NULL && list->tail == NULL)
+        return;
+
+    Node* tmp;
+
+    // loop through the list
+    while (list->head != NULL) {
+        tmp = list->head;               // set tmp to head
+        list->head = list->head->next;  // set head to next
+        free(tmp);                      // free curr node
+    }
+
+    // free list
+    free(list);
 }
