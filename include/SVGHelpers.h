@@ -16,7 +16,7 @@
 void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup);
 
 // remove the units off of attribtues
-float removeUnits(char* string, char* unitsStr);
+float removeUnits(char* inputString, char* unitsStr);
 
 // initalize a new group
 Group* createNewGroup();
