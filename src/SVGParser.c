@@ -20,9 +20,9 @@ SVG* createSVG(const char* fileName) {
     rootElement = xmlDocGetRootElement(doc);  // get the root element
 
     // set the namepsace, title, and desc. to empty string
-    strcpy(newSVG->namespace, " ");
-    strcpy(newSVG->title, " ");
-    strcpy(newSVG->description, " ");
+    strcpy(newSVG->namespace, "");
+    strcpy(newSVG->title, "");
+    strcpy(newSVG->description, "");
 
     strcpy(newSVG->namespace, (char*)rootElement->ns->href);                                          // get the namespace
     newSVG->rectangles = initializeList(rectangleToString, deleteRectangle, compareRectangles);       // create empty rect list
@@ -295,7 +295,8 @@ int numGroupsWithLen(const SVG* img, int len) {
     // loop through all the groups in the SVG
     while ((elem = nextElement(&iter)) != NULL) {
         currGroup = (Group*)elem;
-        currLen = 0;                                  // set curr len to 0
+        currLen = 0;  // set curr len to 0
+
         currLen += getLength(currGroup->rectangles);  // add the length of the rects list to currLen
         currLen += getLength(currGroup->circles);     // add the length of the circles list to currLen
         currLen += getLength(currGroup->paths);       // add the length of the paths list to currLen

@@ -11,3 +11,5 @@ mem*
 
 
 CIS2750.code-workspace
+.vscode/settings.json
+.vscode/c_cpp_properties.json
