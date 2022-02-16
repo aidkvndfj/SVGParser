@@ -45,6 +45,6 @@ int numAttrInPathList(List* pathList);
 // count the total number of other attributes in a list of groups
 int numAttrInGroupList(List* groupList);
 
-void freeListKeepData(List* list);
+void doNothing(void* data);
 
 #endif

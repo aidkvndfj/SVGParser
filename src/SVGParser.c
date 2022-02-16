@@ -102,7 +102,7 @@ List* getRects(const SVG* img) {
     Rectangle* currRect;
     Group* currGroup;
 
-    List* totalRects = initializeList(rectangleToString, deleteRectangle, compareRectangles);
+    List* totalRects = initializeList(rectangleToString, doNothing, compareRectangles);
     ListIterator rectIter = createIterator(img->rectangles);
     ListIterator groupIter = createIterator(img->groups);
 
@@ -130,7 +130,7 @@ List* getCircles(const SVG* img) {
     Circle* currCircle;
     Group* currGroup;
 
-    List* totalCircles = initializeList(rectangleToString, deleteRectangle, compareRectangles);
+    List* totalCircles = initializeList(circleToString, doNothing, compareCircles);
     ListIterator circleIter = createIterator(img->circles);
     ListIterator groupIter = createIterator(img->groups);
 
@@ -158,7 +158,7 @@ List* getPaths(const SVG* img) {
     Path* currPath;
     Group* currGroup;
 
-    List* totalPaths = initializeList(rectangleToString, deleteRectangle, compareRectangles);
+    List* totalPaths = initializeList(pathToString, doNothing, comparePaths);
     ListIterator pathIter = createIterator(img->paths);
     ListIterator groupIter = createIterator(img->groups);
 
@@ -185,7 +185,7 @@ List* getGroups(const SVG* img) {
     void* elem;
     Group* currGroup;
 
-    List* totalGroups = initializeList(rectangleToString, deleteRectangle, compareRectangles);
+    List* totalGroups = initializeList(groupToString, doNothing, compareGroups);
     ListIterator groupIter = createIterator(img->groups);
 
     // loop through all the groups and add them to the total group list, then add any groups inside the groups to the groups list
@@ -222,7 +222,7 @@ int numRectsWithArea(const SVG* img, float area) {
     }
 
     // free the list and nodes of the tmp list, but keep the data in tact
-    freeListKeepData(tmpRects);
+    freeList(tmpRects);
     return numRects;
 }
 
@@ -248,7 +248,7 @@ int numCirclesWithArea(const SVG* img, float area) {
     }
 
     // free the list and nodes of the tmp list, but keep the data in tact
-    freeListKeepData(tmpCircle);
+    freeList(tmpCircle);
     return numCircle;
 }
 
@@ -274,7 +274,7 @@ int numPathsWithdata(const SVG* img, const char* data) {
     }
 
     // free the list and nodes of the tmp list, but keep the data in tact
-    freeListKeepData(tmpPaths);
+    freeList(tmpPaths);
     return numPaths;
 }
 
@@ -309,7 +309,7 @@ int numGroupsWithLen(const SVG* img, int len) {
     }
 
     // free the list and nodes of the tmp list, but keep the data in tact
-    freeListKeepData(tmpGroups);
+    freeList(tmpGroups);
     return numGroupsWithLen;
 }
 
@@ -334,10 +334,10 @@ int numAttr(const SVG* img) {
     currLen += numAttrInGroupList(tmpGroup);
 
     // free the lists and nodes, but keep the data in-tact
-    freeListKeepData(tmpRect);
-    freeListKeepData(tmpCircle);
-    freeListKeepData(tmpPath);
-    freeListKeepData(tmpGroup);
+    freeList(tmpRect);
+    freeList(tmpCircle);
+    freeList(tmpPath);
+    freeList(tmpGroup);
 
     return currLen;
 }
@@ -409,6 +409,7 @@ void deleteGroup(void* data) {
 }
 
 char* groupToString(void* data) {
+    printf("******************************************************GROUP\n");
     // if the data is null there is nothing to free
     if (data == NULL)
         return NULL;

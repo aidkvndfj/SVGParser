@@ -271,6 +271,7 @@ void addGroupPaths(List* pathList, Group* group) {
 
 // Recursively go through the group, and add all groups to groupList
 void addGroupGroups(List* groupList, Group* group) {
+    printf("*******************GROUP***\n");
     void* elem;
     Group* currGroup;
 
@@ -280,7 +281,7 @@ void addGroupGroups(List* groupList, Group* group) {
     while ((elem = nextElement(&groupIter)) != NULL) {
         currGroup = (Group*)elem;
         insertBack(groupList, currGroup);
-        addGroupPaths(groupList, currGroup);
+        addGroupGroups(groupList, currGroup);
     }
 }
 
@@ -353,24 +354,6 @@ int numAttrInGroupList(List* groupList) {
     return 0;
 }
 
-void freeListKeepData(List* list) {
-    // if list is nul, nothing to free
-    if (list == NULL)
-        return;
-
-    // if list head and tail null, nothing to free
-    if (list->head == NULL && list->tail == NULL)
-        return;
-
-    Node* tmp;
-
-    // loop through the list
-    while (list->head != NULL) {
-        tmp = list->head;               // set tmp to head
-        list->head = list->head->next;  // set head to next
-        free(tmp);                      // free curr node
-    }
-
-    // free list
-    free(list);
+void doNothing(void* data) {
+    return;
 }
