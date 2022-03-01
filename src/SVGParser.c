@@ -345,6 +345,9 @@ int numAttr(const SVG* img) {
 
 //******************* Assignment 2 *******************//
 bool validateSVG(const SVG* img, const char* schemaFile) {
+    // Validity code taken from http://knol2share.blogspot.com/2009/05/validate-xml-against-xsd-in-c.html
+    // and modified sliglty for use in this project
+
     xmlDocPtr doc;
     xmlSchemaPtr schema = NULL;
     xmlSchemaParserCtxtPtr parserCtxt;
@@ -406,6 +409,13 @@ bool validateSVG(const SVG* img, const char* schemaFile) {
 }
 
 SVG* createValidSVG(const char* fileName, const char* schemaFile) {
+    SVG* newSVG = createSVG(fileName);
+
+    return validateSVG(newSVG, schemaFile) ? newSVG : NULL;
+}
+
+/*
+SVG* createValidSVG(const char* fileName, const char* schemaFile) {
     xmlDocPtr doc;
     xmlSchemaPtr schema = NULL;
     xmlSchemaParserCtxtPtr parserCtxt;
@@ -462,6 +472,7 @@ SVG* createValidSVG(const char* fileName, const char* schemaFile) {
 
     return NULL;
 }
+*/
 
 bool writeSVG(const SVG* img, const char* fileName) {
     if (img == NULL)
