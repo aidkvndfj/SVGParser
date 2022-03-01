@@ -7,6 +7,7 @@
 #include <libxml/xmlschemastypes.h>
 #include <libxml/xmlwriter.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "SVGParser.h"
 
@@ -46,5 +47,11 @@ int numAttrInPathList(List* pathList);
 int numAttrInGroupList(List* groupList);
 
 void doNothing(void* data);
+
+// creates a xmlDoc from a svg struct
+xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode);
+// xmlDocPtr createTree(const SVG* currSVG);
+
+xmlNodePtr createGroupNode(Group* currGroup);
 
 #endif

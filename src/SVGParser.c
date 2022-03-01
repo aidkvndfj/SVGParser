@@ -2,6 +2,7 @@
 
 #include "SVGHelpers.h"
 
+//******************* Assignment 1 *******************//
 //~~~~~~~~ Parser Functions ~~~~~~~~//
 SVG* createSVG(const char* fileName) {
     SVG* newSVG = NULL;
@@ -149,6 +150,28 @@ List* getCircles(const SVG* img) {
     return totalCircles;
 }
 
+// Function that returns a list of all groups in the struct.
+List* getGroups(const SVG* img) {
+    if (img == NULL)
+        return NULL;
+
+    void* elem;
+    Group* currGroup;
+
+    List* totalGroups = initializeList(groupToString, doNothing, compareGroups);
+    ListIterator groupIter = createIterator(img->groups);
+
+    // loop through all the groups and add them to the total group list, then add any groups inside the groups to the groups list
+    while ((elem = nextElement(&groupIter)) != NULL) {
+        currGroup = (Group*)elem;
+
+        insertBack(totalGroups, currGroup);
+        addGroupGroups(totalGroups, currGroup);
+    }
+
+    return totalGroups;
+}
+
 // Function that returns a list of all paths in the struct.
 List* getPaths(const SVG* img) {
     if (img == NULL)
@@ -175,28 +198,6 @@ List* getPaths(const SVG* img) {
     }
 
     return totalPaths;
-}
-
-// Function that returns a list of all groups in the struct.
-List* getGroups(const SVG* img) {
-    if (img == NULL)
-        return NULL;
-
-    void* elem;
-    Group* currGroup;
-
-    List* totalGroups = initializeList(groupToString, doNothing, compareGroups);
-    ListIterator groupIter = createIterator(img->groups);
-
-    // loop through all the groups and add them to the total group list, then add any groups inside the groups to the groups list
-    while ((elem = nextElement(&groupIter)) != NULL) {
-        currGroup = (Group*)elem;
-
-        insertBack(totalGroups, currGroup);
-        addGroupGroups(totalGroups, currGroup);
-    }
-
-    return totalGroups;
 }
 
 //~~~~~~~~ Summaries ~~~~~~~~~//
@@ -342,8 +343,197 @@ int numAttr(const SVG* img) {
     return currLen;
 }
 
-//~~~~~~~~ Helper Functions ~~~~~~~~//
+//******************* Assignment 2 *******************//
+bool validateSVG(const SVG* img, const char* schemaFile) {
+    xmlDocPtr doc;
+    xmlSchemaPtr schema = NULL;
+    xmlSchemaParserCtxtPtr parserCtxt;
 
+    int ret;
+
+    xmlLineNumbersDefault(1);
+
+    parserCtxt = xmlSchemaNewParserCtxt(schemaFile);
+
+    xmlSchemaSetParserErrors(parserCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
+    schema = xmlSchemaParse(parserCtxt);
+    xmlSchemaFreeParserCtxt(parserCtxt);
+
+    doc = xmlNewDoc(BAD_CAST "1.0");
+    xmlDocSetRootElement(doc, createTree(img, NULL, NULL));
+
+    if (doc == NULL)
+        return false;
+
+    if (doc == NULL) {
+        // free the schema
+        if (schema != NULL)
+            xmlSchemaFree(schema);
+
+        xmlSchemaCleanupTypes();
+        xmlCleanupParser();
+        // xmlMemoryDump();
+
+        perror("Couldn't parse the SVG in ValidateSVG");
+        return false;
+    }
+
+    xmlSchemaValidCtxtPtr validCtxt;
+    validCtxt = xmlSchemaNewValidCtxt(schema);
+    xmlSchemaSetValidErrors(validCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
+    ret = xmlSchemaValidateDoc(validCtxt, doc);
+    xmlSchemaFreeValidCtxt(validCtxt);
+    xmlFreeDoc(doc);
+
+    // free the schema
+    if (schema != NULL)
+        xmlSchemaFree(schema);
+
+    xmlSchemaCleanupTypes();
+    xmlCleanupParser();
+    // xmlMemoryDump();
+
+    if (ret == 0) {
+        return true;
+    }
+    else if (ret > 0) {
+        printf("SVG fails to validate\n");
+    }
+    else {
+        printf("SVG validation generated an internal error\n");
+    }
+    return false;
+}
+
+SVG* createValidSVG(const char* fileName, const char* schemaFile) {
+    xmlDocPtr doc;
+    xmlSchemaPtr schema = NULL;
+    xmlSchemaParserCtxtPtr parserCtxt;
+
+    int ret;
+
+    xmlLineNumbersDefault(1);
+
+    parserCtxt = xmlSchemaNewParserCtxt(schemaFile);
+
+    xmlSchemaSetParserErrors(parserCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
+    schema = xmlSchemaParse(parserCtxt);
+    xmlSchemaFreeParserCtxt(parserCtxt);
+
+    doc = xmlReadFile(fileName, NULL, 0);
+
+    if (doc == NULL) {
+        // free the schema
+        if (schema != NULL)
+            xmlSchemaFree(schema);
+
+        xmlSchemaCleanupTypes();
+        xmlCleanupParser();
+        // xmlMemoryDump();
+
+        perror("Couldn't parse the SVG in ValidateSVG");
+        return false;
+    }
+
+    xmlSchemaValidCtxtPtr validCtxt;
+    validCtxt = xmlSchemaNewValidCtxt(schema);
+    xmlSchemaSetValidErrors(validCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
+    ret = xmlSchemaValidateDoc(validCtxt, doc);
+    xmlSchemaFreeValidCtxt(validCtxt);
+    xmlFreeDoc(doc);
+
+    // free the schema
+    if (schema != NULL)
+        xmlSchemaFree(schema);
+
+    xmlSchemaCleanupTypes();
+    xmlCleanupParser();
+    // xmlMemoryDump();
+
+    if (ret == 0) {
+        return createSVG(fileName);
+    }
+    else if (ret > 0) {
+        printf("SVG fails to validate, cannot create\n");
+    }
+    else {
+        printf("SVG validation generated an internal error, cannot create\n");
+    }
+
+    return NULL;
+}
+
+bool writeSVG(const SVG* img, const char* fileName) {
+    if (img == NULL)
+        return false;
+
+    xmlDocPtr newDoc;
+
+    newDoc = xmlNewDoc(BAD_CAST "1.0");
+    xmlDocSetRootElement(newDoc, createTree(img, NULL, NULL));
+
+    if (newDoc == NULL)
+        return false;
+
+    xmlSaveFormatFileEnc(fileName, newDoc, "UTF-8", 1);
+
+    xmlFreeDoc(newDoc);
+
+    return true;
+}
+
+bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newAttribute) {
+    return false;
+}
+
+void addComponent(SVG* img, elementType type, void* newElement) {
+}
+
+char* attrToJSON(const Attribute* a) {
+    return NULL;
+}
+
+char* circleToJSON(const Circle* c) {
+    return NULL;
+}
+
+char* rectToJSON(const Rectangle* r) {
+    return NULL;
+}
+
+char* pathToJSON(const Path* p) {
+    return NULL;
+}
+
+char* groupToJSON(const Group* g) {
+    return NULL;
+}
+
+char* attrListToJSON(const List* list) {
+    return NULL;
+}
+
+char* circListToJSON(const List* list) {
+    return NULL;
+}
+
+char* rectListToJSON(const List* list) {
+    return NULL;
+}
+
+char* pathListToJSON(const List* list) {
+    return NULL;
+}
+
+char* groupListToJSON(const List* list) {
+    return NULL;
+}
+
+char* SVGtoJSON(const SVG* img) {
+    return NULL;
+}
+
+//~~~~~~~~ Helper Functions ~~~~~~~~//
 // Attributes
 void deleteAttribute(void* data) {
     Attribute* tmpData;
@@ -409,7 +599,6 @@ void deleteGroup(void* data) {
 }
 
 char* groupToString(void* data) {
-    printf("******************************************************GROUP\n");
     // if the data is null there is nothing to free
     if (data == NULL)
         return NULL;
