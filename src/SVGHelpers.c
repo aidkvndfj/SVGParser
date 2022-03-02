@@ -170,14 +170,15 @@ float removeUnits(char* string, char* unitsStr) {
     int numUnitChars = 0;
     int setUnits = strlen(unitsStr) == 0;
 
+    // loop until you reach null char
     for (int i = 0; string[i] != '\0'; i++) {
-        for (int j = 0; j < 11; j++) {
-            if ((string[i] == numberString[j]) || (j == 0 && string[i] == '-')) {
+        for (int j = 0; j < 11; j++) {                                             // loop through the valid chars list
+            if ((string[i] == numberString[j]) || (j == 0 && string[i] == '-')) {  // if the current char is valid or a - is the first char
                 otherString[numValChars] = string[i];
                 numValChars++;
                 break;
             }
-            else if (setUnits && j == 10) {
+            else if (setUnits && j == 10) {  // if we need to set the units, and we're looking at the last of the valid chars
                 unitsStr[numUnitChars] = string[i];
                 numUnitChars++;
                 break;
@@ -386,12 +387,15 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
         return NULL;
     }
 
+    // only do this if it's the first pass, and we are looking at the SVG
     if (currSVG != NULL) {
-        rootNode = xmlNewNode(NULL, BAD_CAST "svg");
+        rootNode = xmlNewNode(NULL, BAD_CAST "svg");  // create the root node
 
+        // set namespace
         xmlNsPtr newNS = xmlNewNs(rootNode, (xmlChar*)currSVG->namespace, NULL);
         xmlSetNs(rootNode, newNS);
 
+        // loop through SVG other attributes and add them to the tree
         attrIterator = createIterator(currSVG->otherAttributes);
         for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
             currAttr = (Attribute*)elem2;
@@ -402,15 +406,17 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
             xmlNewProp(rootNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
         }
 
+        // if title isn't empty, add it as a node
         if (strcmp(currSVG->title, "") != 0)
             xmlNewChild(rootNode, NULL, BAD_CAST "title", BAD_CAST currSVG->title);
 
+        // if desc isn't empty, add it as a node
         if (strcmp(currSVG->description, "") != 0)
             xmlNewChild(rootNode, NULL, BAD_CAST "desc", BAD_CAST currSVG->description);
     }
 
     // add all rects to the xml tree
-    elementIterator = currSVG != NULL ? createIterator(currSVG->rectangles) : createIterator(bGroup->rectangles);
+    elementIterator = currSVG != NULL ? createIterator(currSVG->rectangles) : createIterator(bGroup->rectangles);  // check if we're iterating through the svg, or through a group
     for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
         currRect = (Rectangle*)elem;
         tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "rect", NULL);
@@ -442,8 +448,8 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
         }
     }
 
-    // add all rects to the xml tree
-    elementIterator = currSVG != NULL ? createIterator(currSVG->circles) : createIterator(bGroup->circles);
+    // add all circles to the xml tree
+    elementIterator = currSVG != NULL ? createIterator(currSVG->circles) : createIterator(bGroup->circles);  // check if we're iterating through the svg, or through a group
     for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
         currCircle = (Circle*)elem;
         tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "circle", NULL);
@@ -480,8 +486,8 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
         }
     }
 
-    // add all rects to the xml tree
-    elementIterator = currSVG != NULL ? createIterator(currSVG->paths) : createIterator(bGroup->paths);
+    // add all paths to the xml tree
+    elementIterator = currSVG != NULL ? createIterator(currSVG->paths) : createIterator(bGroup->paths);  // check if we're iterating through the svg, or through a group
     for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
         currPath = (Path*)elem;
         tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "path", NULL);
@@ -503,11 +509,12 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
         }
     }
 
-    // add all rects to the xml tree
-    elementIterator = currSVG != NULL ? createIterator(currSVG->groups) : createIterator(bGroup->groups);
+    // add all groups to the xml tree
+    elementIterator = currSVG != NULL ? createIterator(currSVG->groups) : createIterator(bGroup->groups);  // check if we're iterating through the svg, or through a group
     for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
         currGroup = (Group*)elem;
 
+        // create a new node, and call createTree with tempNode as the root
         tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "g", NULL);
         createTree(NULL, currGroup, tempNode);
 
@@ -527,6 +534,7 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
         xmlAddChild(rootNode, tempNode);
     }
 
+    // return the root
     return rootNode;
 }
 
