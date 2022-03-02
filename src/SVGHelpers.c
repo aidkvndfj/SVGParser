@@ -30,26 +30,26 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
         else if (strcmp((char*)currNode->name, "rect") == 0) {
             xmlAttr* attr;                                                                                     // create attr variable to keep track of the attributes
             Rectangle* newRect = (Rectangle*)malloc(sizeof(Rectangle));                                        // create a new rect struct.
-            newRect->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // initalize the attribute list
+            newRect->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // initialize the attribute list
             strcpy(newRect->units, "");
 
             for (attr = currNode->properties; attr != NULL; attr = attr->next) {  // loop through all the attributes
                 xmlNode* value = attr->children;                                  // create another node to get the content easier
 
                 if (strcmp((char*)attr->name, "x") == 0) {  // if attribute is x
-                    // set the x to the attributres contents, and parse the unit to the newRects unit if there are any
+                    // set the x to the attributes contents, and parse the unit to the newRects unit if there are any
                     newRect->x = removeUnits((char*)value->content, newRect->units);
                 }
                 else if (strcmp((char*)attr->name, "y") == 0) {  // if attribute is y
-                    // set the y to the attributres contents, and parse the unit to the newRects unit if there are any
+                    // set the y to the attributes contents, and parse the unit to the newRects unit if there are any
                     newRect->y = removeUnits((char*)value->content, newRect->units);
                 }
                 else if (strcmp((char*)attr->name, "width") == 0) {  // if attribute is width
-                    // set the width to the attributres contents, and parse the unit to the newRects unit if there are any
+                    // set the width to the attributes contents, and parse the unit to the newRects unit if there are any
                     newRect->width = removeUnits((char*)value->content, newRect->units);
                 }
                 else if (strcmp((char*)attr->name, "height") == 0) {  // if attribute is height
-                    // set the height to the attributres contents, and parse the unit to the newRects unit if there are any
+                    // set the height to the attributes contents, and parse the unit to the newRects unit if there are any
                     newRect->height = removeUnits((char*)value->content, newRect->units);
                 }
                 else {
@@ -72,22 +72,22 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
         else if (strcmp((char*)currNode->name, "circle") == 0) {
             xmlAttr* attr;                                                                                       // create attr variable to keep track of the attributes
             Circle* newCircle = (Circle*)malloc(sizeof(Circle));                                                 // create a new rect struct.
-            newCircle->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // initalize the attribute list
+            newCircle->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // initialize the attribute list
             strcpy(newCircle->units, "");
 
             for (attr = currNode->properties; attr != NULL; attr = attr->next) {  // loop through all the attributes
                 xmlNode* value = attr->children;                                  // create another node to get the content easier
 
                 if (strcmp((char*)attr->name, "cx") == 0) {  // if attribute is cx
-                    // set the cx to the attributres contents, and parse the unit to the newCircles unit if there are any
+                    // set the cx to the attributes contents, and parse the unit to the newCircles unit if there are any
                     newCircle->cx = removeUnits((char*)value->content, newCircle->units);
                 }
                 else if (strcmp((char*)attr->name, "cy") == 0) {  // if attribute is cy
-                    // set the cy to the attributres contents, and parse the unit to the newCircles unit if there are any
+                    // set the cy to the attributes contents, and parse the unit to the newCircles unit if there are any
                     newCircle->cy = removeUnits((char*)value->content, newCircle->units);
                 }
                 else if (strcmp((char*)attr->name, "r") == 0) {  // if attribute is r
-                    // set the r to the attributres contents, and parse the unit to the newCircles unit if there are any
+                    // set the r to the attributes contents, and parse the unit to the newCircles unit if there are any
                     newCircle->r = removeUnits((char*)value->content, newCircle->units);
                 }
                 else {
@@ -110,14 +110,14 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
         else if (strcmp((char*)currNode->name, "path") == 0) {
             xmlAttr* attr;                                                                                     // create a new attribute to manipulate the other attributes
             Path* newPath = (Path*)malloc(sizeof(Path));                                                       // create a new path
-            newPath->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // initalize the attributes list
+            newPath->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // initialize the attributes list
 
             for (attr = currNode->properties; attr != NULL; attr = attr->next) {  // loop through all the attributes
                 xmlNode* value = attr->children;                                  // set value to the child for easier access to the content
 
                 if (strcmp((char*)attr->name, "d") == 0) {  // if the attribute is data
                     newPath = realloc(newPath, (sizeof(Path) + strlen((char*)value->content) + 1));
-                    strcpy(newPath->data, (char*)value->content);  // set the new paths data to the attribututes data.
+                    strcpy(newPath->data, (char*)value->content);  // set the new paths data to the attributes data.
                 }
                 else {                                                                                               // if it is another attribute
                     Attribute* tmpAttr = (Attribute*)malloc(sizeof(Attribute) + strlen((char*)value->content) + 1);  // create new attribute

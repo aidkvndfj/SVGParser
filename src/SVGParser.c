@@ -20,7 +20,7 @@ SVG* createSVG(const char* fileName) {
 
     rootElement = xmlDocGetRootElement(doc);  // get the root element
 
-    // set the namepsace, title, and desc. to empty string
+    // set the namespace, title, and desc. to empty string
     strcpy(newSVG->namespace, "");
     strcpy(newSVG->title, "");
     strcpy(newSVG->description, "");
@@ -57,7 +57,7 @@ char* SVGToString(const SVG* img) {
     tmpStr = (char*)malloc(sizeof(char) * len);  // malloc space for the tmp string
 
     // set the return string
-    sprintf(tmpStr, "Namespace: %s\nTitle: %s\nDescrpition: %s\n\n", img->namespace, img->title, img->description);  // add namespace, title, and desc
+    sprintf(tmpStr, "Namespace: %s\nTitle: %s\nDescription: %s\n\n", img->namespace, img->title, img->description);  // add namespace, title, and desc
     strcat(tmpStr, "\nSVG Other Attributes: \n");                                                                    // add the other attributes
     strcat(tmpStr, attrStr);
     strcat(tmpStr, "\nSVG Rectangles: \n");  // add the rectangle
@@ -423,7 +423,7 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
                     }
                 }
 
-                // if elem is null, then there was no match. So insert the new attribnute and set free flag to false
+                // if elem is null, then there was no match. So insert the new attribute and set free flag to false
                 if (elem == NULL) {
                     insertBack(img->otherAttributes, newAttribute);
                     freeFlag = false;
@@ -471,7 +471,7 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
                 for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
                     currAttribute = (Attribute*)elem;
                     if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
-                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current atribute and break out of the loop
+                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current attribute and break out of the loop
                         break;
                     }
                 }
@@ -528,14 +528,14 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
                 for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
                     currAttribute = (Attribute*)elem;
                     if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
-                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current atribute and break out of the loop
+                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current attribute and break out of the loop
                         break;
                     }
                 }
 
                 // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
                 if (elem == NULL) {
-                    printf("new atrribute '%s'\n", newAttribute->name);
+                    printf("new attribute '%s'\n", newAttribute->name);
                     insertBack(currRect->otherAttributes, newAttribute);
                     freeFlag = false;
                 }
@@ -569,7 +569,7 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
                 for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
                     currAttribute = (Attribute*)elem;
                     if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
-                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current atribute and break out of the loop
+                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current attribute and break out of the loop
                         break;
                     }
                 }
@@ -605,7 +605,7 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
             for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
                 currAttribute = (Attribute*)elem;
                 if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
-                    strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current atribute and break out of the loop
+                    strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current attribute and break out of the loop
                     break;
                 }
             }
@@ -625,7 +625,7 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
             return true;
 
         default:
-            printf("Something very very wrong has occuered, or %d isn't a type\n", elemType);
+            printf("Something very very wrong has occurred, or %d isn't a type\n", elemType);
             break;
     }
 
@@ -772,14 +772,14 @@ char* attrListToJSON(const List* list) {
         currAttr = (Attribute*)elem;        // get curr attribute
         currString = attrToJSON(currAttr);  // get curr string
 
-        // if the len is 10, donot add a command to the string
+        // if the len is 10, don't add a command to the string
         if (len != 10)
             strcat(newJSON, ",");
 
         len += strlen(currString) + 1;                   // add the length of the current string to len
         newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
 
-        strcat(newJSON, currString);  // contatinate the current string
+        strcat(newJSON, currString);  // concatenate the current string
         free(currString);             // free the current string
     }
 
@@ -810,14 +810,14 @@ char* circListToJSON(const List* list) {
         currCircle = (Circle*)elem;             // get curr circle
         currString = circleToJSON(currCircle);  // get curr string
 
-        // if the len is 3, donot add a command to the string
+        // if the len is 3, do not add a command to the string
         if (len != 3)
             strcat(newJSON, ",");
 
         len += strlen(currString) + 1;                   // add the length of the current string to len
         newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
 
-        strcat(newJSON, currString);  // contatinate the current string
+        strcat(newJSON, currString);  // concatenate the current string
         free(currString);             // free the current string
     }
 
@@ -848,14 +848,14 @@ char* rectListToJSON(const List* list) {
         currRect = (Rectangle*)elem;        // get curr rect
         currString = rectToJSON(currRect);  // get curr string
 
-        // if the len is 3, donot add a command to the string
+        // if the len is 3, do not add a command to the string
         if (len != 3)
             strcat(newJSON, ",");
 
         len += strlen(currString) + 1;                   // add the length of the current string to len
         newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
 
-        strcat(newJSON, currString);  // contatinate the current string
+        strcat(newJSON, currString);  // concatenate the current string
         free(currString);             // free the current string
     }
 
@@ -886,14 +886,14 @@ char* pathListToJSON(const List* list) {
         currPath = (Path*)elem;             // get curr Path
         currString = pathToJSON(currPath);  // get curr string
 
-        // if the len is 3, donot add a command to the string
+        // if the len is 3, do not add a command to the string
         if (len != 3)
             strcat(newJSON, ",");
 
         len += strlen(currString) + 1;                   // add the length of the current string to len
         newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
 
-        strcat(newJSON, currString);  // contatinate the current string
+        strcat(newJSON, currString);  // concatenate the current string
         free(currString);             // free the current string
     }
 
@@ -924,14 +924,14 @@ char* groupListToJSON(const List* list) {
         currGroup = (Group*)elem;             // get curr Group
         currString = groupToJSON(currGroup);  // get curr string
 
-        // if the len is 3, donot add a command to the string
+        // if the len is 3, do not add a command to the string
         if (len != 3)
             strcat(newJSON, ",");
 
         len += strlen(currString) + 1;                   // add the length of the current string to len
         newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
 
-        strcat(newJSON, currString);  // contatinate the current string
+        strcat(newJSON, currString);  // concatenate the current string
         free(currString);             // free the current string
     }
 
@@ -1167,7 +1167,7 @@ char* circleToString(void* data) {
     tmpData = (Circle*)data;
     tmpAttrStr = toString(tmpData->otherAttributes);
 
-    // make the size 30 per flost, plus the len of units and attributes, plus 30 for other chars
+    // make the size 30 per float, plus the len of units and attributes, plus 30 for other chars
     len = (3 * 30) + strlen(tmpData->units) + strlen(tmpAttrStr) + 30;
     tmpStr = (char*)malloc(len * sizeof(char));  // malloc the space
 
