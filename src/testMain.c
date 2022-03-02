@@ -26,12 +26,25 @@ int main(void) {
     strcpy(newAttribute->name, "x\0");
     strcpy(newAttribute->value, "12345678900987654321\0");
 
-    if (!setAttribute(SVG2, RECT, 1, newAttribute)) {
-        free(newAttribute->name);
-        free(newAttribute);
-    }
-
     printf("%d\n", validateSVG(SVG2, "svg.xsd"));
+
+    char* currString = attrToJSON(newAttribute);
+    printf("%s | %s\n", newAttribute->name, newAttribute->value);
+    printf("%s\n", currString);
+    free(currString);
+
+    printf("First String\n");
+    currString = groupListToJSON(SVG2->groups);
+    printf("%s\n", currString);
+    free(currString);
+
+    setAttribute(SVG2, RECT, 1, newAttribute);
+
+    printf("2nd String\n");
+    currString = groupListToJSON(SVG2->groups);
+    printf("%s\n", currString);
+    free(currString);
+
     writeSVG(SVG2, "test.svg");
 
     deleteSVG(SVG1);

@@ -771,7 +771,7 @@ char* pathToJSON(const Path* p) {
 char* groupToJSON(const Group* g) {
     char* newJSON;
 
-    // if p is null return {}
+    // if g is null return {}
     if (g == NULL) {
         return "{}";
     }
@@ -787,27 +787,236 @@ char* groupToJSON(const Group* g) {
 }
 
 char* attrListToJSON(const List* list) {
-    return NULL;
+    char* newJSON;
+    char* currString;
+    ListIterator attrIterator;
+    Attribute* currAttr;
+    void* elem;
+    int len;
+
+    // if the list is null, return []
+    if (list == NULL)
+        return "[]";
+
+    len = 10;                              // set len to 10
+    newJSON = malloc(sizeof(char) * len);  // malloc newJSON
+    sprintf(newJSON, "[");                 // add the first [
+
+    // iterate throught the list and attach each attributes json to the new string
+    attrIterator = createIterator((List*)list);
+    for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
+        currAttr = (Attribute*)elem;        // get curr attribute
+        currString = attrToJSON(currAttr);  // get curr string
+
+        // if the len is 10, donot add a command to the string
+        if (len != 10)
+            strcat(newJSON, ",");
+
+        len += strlen(currString) + 1;                   // add the length of the current string to len
+        newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
+
+        strcat(newJSON, currString);  // contatinate the current string
+        free(currString);             // free the current string
+    }
+
+    strcat(newJSON, "]");  // add the closing ]
+
+    return newJSON;
 }
 
 char* circListToJSON(const List* list) {
-    return NULL;
+    char* newJSON;
+    char* currString;
+    ListIterator circleIterator;
+    Circle* currCircle;
+    void* elem;
+    int len;
+
+    // if the list is null, return []
+    if (list == NULL)
+        return "[]";
+
+    len = 3;                               // set len to 3 for the 2 [] and null
+    newJSON = malloc(sizeof(char) * len);  // malloc newJSON
+    sprintf(newJSON, "[");                 // add the first [
+
+    // iterate throught the list and attach each circle json to the new string
+    circleIterator = createIterator((List*)list);
+    for (elem = nextElement(&circleIterator); elem != NULL; elem = nextElement(&circleIterator)) {
+        currCircle = (Circle*)elem;             // get curr circle
+        currString = circleToJSON(currCircle);  // get curr string
+
+        // if the len is 3, donot add a command to the string
+        if (len != 3)
+            strcat(newJSON, ",");
+
+        len += strlen(currString) + 1;                   // add the length of the current string to len
+        newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
+
+        strcat(newJSON, currString);  // contatinate the current string
+        free(currString);             // free the current string
+    }
+
+    strcat(newJSON, "]");  // add the closing ]
+
+    return newJSON;
 }
 
 char* rectListToJSON(const List* list) {
-    return NULL;
+    char* newJSON;
+    char* currString;
+    ListIterator rectIterator;
+    Rectangle* currRect;
+    void* elem;
+    int len;
+
+    // if the list is null, return []
+    if (list == NULL)
+        return "[]";
+
+    len = 3;                               // set len to 3 for the 2 [] and null
+    newJSON = malloc(sizeof(char) * len);  // malloc newJSON
+    sprintf(newJSON, "[");                 // add the first [
+
+    // iterate throught the list and attach each rect json to the new string
+    rectIterator = createIterator((List*)list);
+    for (elem = nextElement(&rectIterator); elem != NULL; elem = nextElement(&rectIterator)) {
+        currRect = (Rectangle*)elem;        // get curr rect
+        currString = rectToJSON(currRect);  // get curr string
+
+        // if the len is 3, donot add a command to the string
+        if (len != 3)
+            strcat(newJSON, ",");
+
+        len += strlen(currString) + 1;                   // add the length of the current string to len
+        newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
+
+        strcat(newJSON, currString);  // contatinate the current string
+        free(currString);             // free the current string
+    }
+
+    strcat(newJSON, "]");  // add the closing ]
+
+    return newJSON;
 }
 
 char* pathListToJSON(const List* list) {
-    return NULL;
+    char* newJSON;
+    char* currString;
+    ListIterator pathIterator;
+    Path* currPath;
+    void* elem;
+    int len;
+
+    // if the list is null, return []
+    if (list == NULL)
+        return "[]";
+
+    len = 3;                               // set len to 3 for the 2 [] and null
+    newJSON = malloc(sizeof(char) * len);  // malloc newJSON
+    sprintf(newJSON, "[");                 // add the first [
+
+    // iterate throught the list and attach each Path json to the new string
+    pathIterator = createIterator((List*)list);
+    for (elem = nextElement(&pathIterator); elem != NULL; elem = nextElement(&pathIterator)) {
+        currPath = (Path*)elem;             // get curr Path
+        currString = pathToJSON(currPath);  // get curr string
+
+        // if the len is 3, donot add a command to the string
+        if (len != 3)
+            strcat(newJSON, ",");
+
+        len += strlen(currString) + 1;                   // add the length of the current string to len
+        newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
+
+        strcat(newJSON, currString);  // contatinate the current string
+        free(currString);             // free the current string
+    }
+
+    strcat(newJSON, "]");  // add the closing ]
+
+    return newJSON;
 }
 
 char* groupListToJSON(const List* list) {
-    return NULL;
+    char* newJSON;
+    char* currString;
+    ListIterator groupIterator;
+    Group* currGroup;
+    void* elem;
+    int len;
+
+    // if the list is null, return []
+    if (list == NULL)
+        return "[]";
+
+    len = 3;                               // set len to 3 for the 2 [] and null
+    newJSON = malloc(sizeof(char) * len);  // malloc newJSON
+    sprintf(newJSON, "[");                 // add the first [
+
+    // iterate throught the list and attach each Group json to the new string
+    groupIterator = createIterator((List*)list);
+    for (elem = nextElement(&groupIterator); elem != NULL; elem = nextElement(&groupIterator)) {
+        currGroup = (Group*)elem;             // get curr Group
+        currString = groupToJSON(currGroup);  // get curr string
+
+        // if the len is 3, donot add a command to the string
+        if (len != 3)
+            strcat(newJSON, ",");
+
+        len += strlen(currString) + 1;                   // add the length of the current string to len
+        newJSON = realloc(newJSON, sizeof(char) * len);  // realloc newJSON to have space for the current string
+
+        strcat(newJSON, currString);  // contatinate the current string
+        free(currString);             // free the current string
+    }
+
+    strcat(newJSON, "]");  // add the closing ]
+
+    return newJSON;
 }
 
 char* SVGtoJSON(const SVG* img) {
-    return NULL;
+    char* newJSON;
+    int numRects = 0;
+    int numCircles = 0;
+    int numPaths = 0;
+    int numGroups = 0;
+    List* currList;
+
+    // Get the total rects in the svg
+    currList = getRects(img);
+    numRects = getLength(currList);
+    freeList(currList);
+
+    // Get the total Circles in the svg
+    currList = getCircles(img);
+    numCircles = getLength(currList);
+    freeList(currList);
+
+    // Get the total Paths in the svg
+    currList = getPaths(img);
+    numPaths = getLength(currList);
+    freeList(currList);
+
+    // Get the total Groups in the svg
+    currList = getGroups(img);
+    numGroups = getLength(currList);
+    freeList(currList);
+
+    // if img is null return {}
+    if (img == NULL) {
+        return "{}";
+    }
+
+    // 8 per int + 40 extra
+    int len = 4 * 8 + 40;
+    newJSON = (char*)malloc(sizeof(char) * len);
+
+    // sprintf to newJSON
+    sprintf(newJSON, "{\"numRect\":%d,\"numCirc\":%d,\"numPaths\":%d,\"numGroups\":%d}", numRects, numCircles, numPaths, numGroups);
+
+    return newJSON;
 }
 
 //~~~~~~~~ Helper Functions ~~~~~~~~//
