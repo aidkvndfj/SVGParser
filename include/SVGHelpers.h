@@ -50,9 +50,8 @@ void doNothing(void* data);
 
 // creates a xmlDoc from a svg struct
 xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode);
-// xmlDocPtr createTree(const SVG* currSVG);
 
-xmlNodePtr createGroupNode(Group* currGroup);
+bool validateDoc(xmlDocPtr doc, const char* schemaFile);
 
 bool validNumber(char* string);
 

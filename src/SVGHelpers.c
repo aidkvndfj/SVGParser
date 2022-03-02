@@ -6,7 +6,6 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
     xmlNode* currNode = NULL;
 
     for (currNode = rootNode; currNode != NULL; currNode = currNode->next) {
-        // if the node is the title, set the SVG title to the childrens content, aka the title content.
         if (strcmp((char*)currNode->name, "svg") == 0) {
             xmlAttr* attr;  // create a new attribute to manipulate the other attributes
 
@@ -20,6 +19,7 @@ void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
                 insertBack(currSVG->otherAttributes, tmpAttr);                                                   // insert the attribute to the back of the list
             }
         }
+        // if the node is the title, set the SVG title to the childrens content, aka the title content.
         if (strcmp((char*)currNode->name, "title") == 0) {
             strcpy(currSVG->title, (char*)currNode->children->content);
         }
@@ -271,7 +271,6 @@ void addGroupPaths(List* pathList, Group* group) {
 
 // Recursively go through the group, and add all groups to groupList
 void addGroupGroups(List* groupList, Group* group) {
-    printf("*******************GROUP***\n");
     void* elem;
     Group* currGroup;
 
@@ -387,7 +386,6 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
         return NULL;
     }
 
-    // newDoc = xmlNewDoc(BAD_CAST "1.0");
     if (currSVG != NULL) {
         rootNode = xmlNewNode(NULL, BAD_CAST "svg");
 
@@ -404,10 +402,12 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
             xmlNewProp(rootNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
         }
 
-        xmlNewChild(rootNode, NULL, BAD_CAST "title", BAD_CAST currSVG->title);
-        xmlNewChild(rootNode, NULL, BAD_CAST "desc", BAD_CAST currSVG->description);
+        if (strcmp(currSVG->title, "") != 0)
+            xmlNewChild(rootNode, NULL, BAD_CAST "title", BAD_CAST currSVG->title);
+
+        if (strcmp(currSVG->description, "") != 0)
+            xmlNewChild(rootNode, NULL, BAD_CAST "desc", BAD_CAST currSVG->description);
     }
-    // xmlDocSetRootElement(newDoc, rootNode);
 
     // add all rects to the xml tree
     elementIterator = currSVG != NULL ? createIterator(currSVG->rectangles) : createIterator(bGroup->rectangles);
@@ -419,28 +419,16 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
         if (currRect->otherAttributes == NULL)
             return NULL;
 
-        // if (strcmp(currRect->units, "") == 0)
         sprintf(buff, "%f%s", currRect->x, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->x);
         xmlNewProp(tempNode, BAD_CAST "x", BAD_CAST buff);
 
-        // if (strcmp(currRect->units, "") == 0)
         sprintf(buff, "%f%s", currRect->y, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->y);
         xmlNewProp(tempNode, BAD_CAST "y", BAD_CAST buff);
 
-        // if (strcmp(currRect->units, "") == 0)
         sprintf(buff, "%f%s", currRect->width, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->width);
         xmlNewProp(tempNode, BAD_CAST "width", BAD_CAST buff);
 
-        // if (strcmp(currRect->units, "") == 0)
         sprintf(buff, "%f%s", currRect->height, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->height);
         xmlNewProp(tempNode, BAD_CAST "height", BAD_CAST buff);
 
         attrIterator = createIterator(currRect->otherAttributes);
@@ -540,6 +528,65 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
     }
 
     return rootNode;
+}
+
+bool validateDoc(xmlDocPtr doc, const char* schemaFile) {
+    /** parts of this code have been taken from
+     * http://knol2share.blogspot.com/2009/05/validate-xml-against-xsd-in-c.html
+     * and modified for use in this project */
+
+    xmlSchemaPtr schema = NULL;
+    xmlSchemaParserCtxtPtr parserCtxt;
+
+    int ret;
+
+    xmlLineNumbersDefault(1);
+
+    parserCtxt = xmlSchemaNewParserCtxt(schemaFile);
+
+    xmlSchemaSetParserErrors(parserCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
+    schema = xmlSchemaParse(parserCtxt);
+    xmlSchemaFreeParserCtxt(parserCtxt);
+
+    if (doc == NULL)
+        return false;
+
+    if (doc == NULL) {
+        // free the schema
+        if (schema != NULL)
+            xmlSchemaFree(schema);
+
+        xmlSchemaCleanupTypes();
+        xmlCleanupParser();
+
+        perror("Couldn't parse the SVG in createValidateSVG");
+        return false;
+    }
+
+    xmlSchemaValidCtxtPtr validCtxt;
+    validCtxt = xmlSchemaNewValidCtxt(schema);
+    xmlSchemaSetValidErrors(validCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
+    ret = xmlSchemaValidateDoc(validCtxt, doc);
+    xmlSchemaFreeValidCtxt(validCtxt);
+    xmlFreeDoc(doc);
+
+    // free the schema
+    if (schema != NULL)
+        xmlSchemaFree(schema);
+
+    xmlSchemaCleanupTypes();
+    xmlCleanupParser();
+
+    if (ret == 0) {
+        return true;
+    }
+    else if (ret > 0) {
+        printf("SVG fails to validate, create\n");
+    }
+    else {
+        printf("SVG validation generated an internal error, create\n");
+    }
+    return false;
 }
 
 bool validNumber(char* string) {

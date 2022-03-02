@@ -345,74 +345,22 @@ int numAttr(const SVG* img) {
 
 //******************* Assignment 2 *******************//
 bool validateSVG(const SVG* img, const char* schemaFile) {
-    /** parts of this code have been taken from
-     * http://knol2share.blogspot.com/2009/05/validate-xml-against-xsd-in-c.html
-     * and modified for use in this project */
-
     xmlDocPtr doc;
-    xmlSchemaPtr schema = NULL;
-    xmlSchemaParserCtxtPtr parserCtxt;
-
-    int ret;
-
-    xmlLineNumbersDefault(1);
-
-    parserCtxt = xmlSchemaNewParserCtxt(schemaFile);
-
-    xmlSchemaSetParserErrors(parserCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
-    schema = xmlSchemaParse(parserCtxt);
-    xmlSchemaFreeParserCtxt(parserCtxt);
 
     doc = xmlNewDoc(BAD_CAST "1.0");
     xmlDocSetRootElement(doc, createTree(img, NULL, NULL));
 
-    if (doc == NULL)
-        return false;
-
-    if (doc == NULL) {
-        // free the schema
-        if (schema != NULL)
-            xmlSchemaFree(schema);
-
-        xmlSchemaCleanupTypes();
-        xmlCleanupParser();
-
-        perror("Couldn't parse the SVG in ValidateSVG");
-        return false;
-    }
-
-    xmlSchemaValidCtxtPtr validCtxt;
-    validCtxt = xmlSchemaNewValidCtxt(schema);
-    xmlSchemaSetValidErrors(validCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
-    ret = xmlSchemaValidateDoc(validCtxt, doc);
-    xmlSchemaFreeValidCtxt(validCtxt);
-    xmlFreeDoc(doc);
-
-    // free the schema
-    if (schema != NULL)
-        xmlSchemaFree(schema);
-
-    xmlSchemaCleanupTypes();
-    xmlCleanupParser();
-    // xmlMemoryDump();
-
-    if (ret == 0) {
-        return true;
-    }
-    else if (ret > 0) {
-        printf("SVG fails to validate\n");
-    }
-    else {
-        printf("SVG validation generated an internal error\n");
-    }
-    return false;
+    return validateDoc(doc, schemaFile);
 }
 
 SVG* createValidSVG(const char* fileName, const char* schemaFile) {
-    SVG* newSVG = createSVG(fileName);  // create the SVG
+    xmlDocPtr doc;
+    doc = xmlReadFile(fileName, NULL, 0);  // read the file
 
-    // check the svg, if valid return the newSVG, otherwise return null
-    return validateSVG(newSVG, schemaFile) ? newSVG : NULL;
+    if (validateDoc(doc, schemaFile))
+        return createSVG(fileName);
+
+    return NULL;
 }
 
 bool writeSVG(const SVG* img, const char* fileName) {
@@ -449,7 +397,7 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
     bool freeFlag = true;
     void* elem;
 
-    if (newAttribute->name == NULL || img == NULL || img->rectangles == NULL || img->circles == NULL || img->paths == NULL || img->groups == NULL || img->otherAttributes == NULL) {
+    if (newAttribute == NULL || newAttribute->name == NULL || img == NULL || img->rectangles == NULL || img->circles == NULL || img->paths == NULL || img->groups == NULL || img->otherAttributes == NULL) {
         return false;
     }
 
@@ -491,10 +439,14 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
             return true;
 
         case CIRC:
+
             // loop elemIndex times to get the correct element in the list
             otherIterator = createIterator(img->circles);
-            for (int i = 0; i < elemIndex; i++) {
+            for (int i = 0; i <= elemIndex; i++) {
                 elem = nextElement(&otherIterator);
+                if (elem == NULL)
+                    return false;
+
                 currCircle = (Circle*)elem;
             }
 
@@ -542,8 +494,11 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
         case RECT:
             // loop elemIndex times to get the correct element in the list
             otherIterator = createIterator(img->rectangles);
-            for (int i = 0; i < elemIndex; i++) {
+            for (int i = 0; i <= elemIndex; i++) {
                 elem = nextElement(&otherIterator);
+                if (elem == NULL)
+                    return false;
+
                 currRect = (Rectangle*)elem;
             }
 
@@ -580,6 +535,7 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
 
                 // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
                 if (elem == NULL) {
+                    printf("new atrribute '%s'\n", newAttribute->name);
                     insertBack(currRect->otherAttributes, newAttribute);
                     freeFlag = false;
                 }
@@ -596,8 +552,11 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
         case PATH:
             // loop elemIndex times to get the correct element in the list
             otherIterator = createIterator(img->paths);
-            for (int i = 0; i < elemIndex; i++) {
+            for (int i = 0; i <= elemIndex; i++) {
                 elem = nextElement(&otherIterator);
+                if (elem == NULL)
+                    return false;
+
                 currPath = (Path*)elem;
             }
 
@@ -633,8 +592,11 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
         case GROUP:
             // loop elemIndex times to get the correct element in the list
             otherIterator = createIterator(img->groups);
-            for (int i = 0; i < elemIndex; i++) {
+            for (int i = 0; i <= elemIndex; i++) {
                 elem = nextElement(&otherIterator);
+                if (elem == NULL)
+                    return false;
+
                 currGroup = (Group*)elem;
             }
 
@@ -751,12 +713,14 @@ char* rectToJSON(const Rectangle* r) {
 
 char* pathToJSON(const Path* p) {
     char* newJSON;
-    int dataLen = strlen(p->data);
+    int dataLen;
 
     // if p is null return {}
     if (p == NULL) {
         return "{}";
     }
+
+    dataLen = strlen(p->data);
 
     // datalen + 8 + 25 if datalen <= 64, otherwise just cap at 64
     int len = dataLen > 64 ? 64 + 8 + 25 : dataLen + 8 + 25;
@@ -984,6 +948,11 @@ char* SVGtoJSON(const SVG* img) {
     int numGroups = 0;
     List* currList;
 
+    // if img is null return {}
+    if (img == NULL) {
+        return "{}";
+    }
+
     // Get the total rects in the svg
     currList = getRects(img);
     numRects = getLength(currList);
@@ -1003,11 +972,6 @@ char* SVGtoJSON(const SVG* img) {
     currList = getGroups(img);
     numGroups = getLength(currList);
     freeList(currList);
-
-    // if img is null return {}
-    if (img == NULL) {
-        return "{}";
-    }
 
     // 8 per int + 40 extra
     int len = 4 * 8 + 40;

@@ -4,23 +4,26 @@
 
 int main(void) {
     SVG* SVG1;
-    SVG* SVG2;
-    SVG1 = createValidSVG("quad01.svg", "svg.xsd");
+    // SVG* SVG2;
+    SVG1 = createValidSVG("rects.svg", "svg.xsd");
     printf("%d\n", validateSVG(SVG1, "svg.xsd"));
 
-    if (SVG1 != NULL) {
-        char* svgStr;
-        svgStr = SVGToString(SVG1);
-        printf("%s", svgStr);
-        free(svgStr);
+    Attribute* newAttribute = malloc(sizeof(Attribute) + 22);
+    newAttribute->name = malloc(sizeof(char) * 5);
+    strcpy(newAttribute->name, "fill\0");
+    strcpy(newAttribute->value, "red\0");
 
-        writeSVG(SVG1, "test.svg");
-    }
+    setAttribute(SVG1, RECT, 0, newAttribute);
+    printf("Update Success ");
+    printf("%d\n", validateSVG(SVG1, "svg.xsd"));
 
-    SVG2 = createValidSVG("test.svg", "svg.xsd");
+    writeSVG(SVG1, "test.svg");
 
-    printf("%d\n", validateSVG(SVG2, "svg.xsd"));
+    // SVG2 = createValidSVG("test.svg", "svg.xsd");
 
+    // printf("%d\n", validateSVG(SVG2, "svg.xsd"));
+
+    /*
     Attribute* newAttribute = malloc(sizeof(Attribute) + 22);
     newAttribute->name = malloc(sizeof(char) * 2);
     strcpy(newAttribute->name, "x\0");
@@ -46,9 +49,10 @@ int main(void) {
     free(currString);
 
     writeSVG(SVG2, "test.svg");
+*/
 
     deleteSVG(SVG1);
-    deleteSVG(SVG2);
+    // deleteSVG(SVG2);
 
     return 1;
 }
