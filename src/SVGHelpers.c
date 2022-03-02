@@ -212,7 +212,7 @@ void addGroupRects(List* rectList, Group* group) {
     ListIterator rectIter = createIterator(group->rectangles);
     ListIterator groupIter = createIterator(group->groups);
 
-    // loop through the rectanlges, and add the current rect to the total rects list
+    // loop through the rectList, and add the current rect to the total rects list
     while ((elem = nextElement(&rectIter)) != NULL) {
         currRect = (Rectangle*)elem;
         insertBack(rectList, currRect);
@@ -234,7 +234,7 @@ void addGroupCircles(List* circleList, Group* group) {
     ListIterator circleIter = createIterator(group->circles);
     ListIterator groupIter = createIterator(group->groups);
 
-    // loop through the circleanlges, and add the current circle to the total circles list
+    // loop through the circleList, and add the current circle to the total circles list
     while ((elem = nextElement(&circleIter)) != NULL) {
         currCircle = (Circle*)elem;
         insertBack(circleList, currCircle);
@@ -256,7 +256,7 @@ void addGroupPaths(List* pathList, Group* group) {
     ListIterator PathIter = createIterator(group->paths);
     ListIterator groupIter = createIterator(group->groups);
 
-    // loop through the Pathanlges, and add the current Path to the total Paths list
+    // loop through the pathList, and add the current Path to the total Paths list
     while ((elem = nextElement(&PathIter)) != NULL) {
         currPath = (Path*)elem;
         insertBack(pathList, currPath);
