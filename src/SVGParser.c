@@ -345,8 +345,9 @@ int numAttr(const SVG* img) {
 
 //******************* Assignment 2 *******************//
 bool validateSVG(const SVG* img, const char* schemaFile) {
-    // Validity code taken from http://knol2share.blogspot.com/2009/05/validate-xml-against-xsd-in-c.html
-    // and modified sliglty for use in this project
+    /** parts of this code have been taken from
+     * http://knol2share.blogspot.com/2009/05/validate-xml-against-xsd-in-c.html
+     * and modified for use in this project */
 
     xmlDocPtr doc;
     xmlSchemaPtr schema = NULL;
@@ -375,7 +376,6 @@ bool validateSVG(const SVG* img, const char* schemaFile) {
 
         xmlSchemaCleanupTypes();
         xmlCleanupParser();
-        // xmlMemoryDump();
 
         perror("Couldn't parse the SVG in ValidateSVG");
         return false;
@@ -409,115 +409,381 @@ bool validateSVG(const SVG* img, const char* schemaFile) {
 }
 
 SVG* createValidSVG(const char* fileName, const char* schemaFile) {
-    SVG* newSVG = createSVG(fileName);
+    SVG* newSVG = createSVG(fileName);  // create the SVG
 
+    // check the svg, if valid return the newSVG, otherwise return null
     return validateSVG(newSVG, schemaFile) ? newSVG : NULL;
 }
 
-/*
-SVG* createValidSVG(const char* fileName, const char* schemaFile) {
-    xmlDocPtr doc;
-    xmlSchemaPtr schema = NULL;
-    xmlSchemaParserCtxtPtr parserCtxt;
-
-    int ret;
-
-    xmlLineNumbersDefault(1);
-
-    parserCtxt = xmlSchemaNewParserCtxt(schemaFile);
-
-    xmlSchemaSetParserErrors(parserCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
-    schema = xmlSchemaParse(parserCtxt);
-    xmlSchemaFreeParserCtxt(parserCtxt);
-
-    doc = xmlReadFile(fileName, NULL, 0);
-
-    if (doc == NULL) {
-        // free the schema
-        if (schema != NULL)
-            xmlSchemaFree(schema);
-
-        xmlSchemaCleanupTypes();
-        xmlCleanupParser();
-        // xmlMemoryDump();
-
-        perror("Couldn't parse the SVG in ValidateSVG");
-        return false;
-    }
-
-    xmlSchemaValidCtxtPtr validCtxt;
-    validCtxt = xmlSchemaNewValidCtxt(schema);
-    xmlSchemaSetValidErrors(validCtxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
-    ret = xmlSchemaValidateDoc(validCtxt, doc);
-    xmlSchemaFreeValidCtxt(validCtxt);
-    xmlFreeDoc(doc);
-
-    // free the schema
-    if (schema != NULL)
-        xmlSchemaFree(schema);
-
-    xmlSchemaCleanupTypes();
-    xmlCleanupParser();
-    // xmlMemoryDump();
-
-    if (ret == 0) {
-        return createSVG(fileName);
-    }
-    else if (ret > 0) {
-        printf("SVG fails to validate, cannot create\n");
-    }
-    else {
-        printf("SVG validation generated an internal error, cannot create\n");
-    }
-
-    return NULL;
-}
-*/
-
 bool writeSVG(const SVG* img, const char* fileName) {
-    if (img == NULL)
+    if (img == NULL)  // make sure img isn't null
         return false;
 
     xmlDocPtr newDoc;
 
-    newDoc = xmlNewDoc(BAD_CAST "1.0");
-    xmlDocSetRootElement(newDoc, createTree(img, NULL, NULL));
+    newDoc = xmlNewDoc(BAD_CAST "1.0");                         // create new doc
+    xmlDocSetRootElement(newDoc, createTree(img, NULL, NULL));  // set the root of the doc to the node returned from createTree
 
+    // if the newDoc is null, something failed, return false
     if (newDoc == NULL)
         return false;
 
+    // save the doc to fileName
     xmlSaveFormatFileEnc(fileName, newDoc, "UTF-8", 1);
 
+    // free the doc
     xmlFreeDoc(newDoc);
+    xmlCleanupParser();
 
     return true;
 }
 
 bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newAttribute) {
+    ListIterator attrIterator;
+    ListIterator otherIterator;
+    Attribute* currAttribute = NULL;
+    Rectangle* currRect = NULL;
+    Circle* currCircle = NULL;
+    Path* currPath = NULL;
+    Group* currGroup = NULL;
+    bool freeFlag = true;
+    void* elem;
+
+    if (newAttribute->name == NULL || img == NULL || img->rectangles == NULL || img->circles == NULL || img->paths == NULL || img->groups == NULL || img->otherAttributes == NULL) {
+        return false;
+    }
+
+    switch (elemType) {
+        case SVG_IMG:
+            if (strcmp(newAttribute->name, "xmlns") == 0) {  // check if new attribute is a namespace
+                strcpy(img->namespace, newAttribute->value);
+            }
+            else if (strcmp(newAttribute->name, "title") == 0) {  // check if new attribute is a title
+                strcpy(img->title, newAttribute->value);
+            }
+            else if (strcmp(newAttribute->name, "desc") == 0) {  // check if new attribute is a description
+                strcpy(img->description, newAttribute->value);
+            }
+            else {
+                // loop through the list of attributes and try to find a match
+                attrIterator = createIterator(img->otherAttributes);
+                for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
+                    currAttribute = (Attribute*)elem;
+                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we found a match, set the curr attribute and break out of the loop
+                        strcpy(currAttribute->value, newAttribute->value);
+                        break;
+                    }
+                }
+
+                // if elem is null, then there was no match. So insert the new attribnute and set free flag to false
+                if (elem == NULL) {
+                    insertBack(img->otherAttributes, newAttribute);
+                    freeFlag = false;
+                }
+            }
+
+            // if free flag is set, then free the new attribute. Otherwise don't free it because it was added to the list of others
+            if (freeFlag) {
+                free(newAttribute->name);
+                free(newAttribute);
+            }
+
+            return true;
+
+        case CIRC:
+            // loop elemIndex times to get the correct element in the list
+            otherIterator = createIterator(img->circles);
+            for (int i = 0; i < elemIndex; i++) {
+                elem = nextElement(&otherIterator);
+                currCircle = (Circle*)elem;
+            }
+
+            if (strcmp(newAttribute->name, "cx") == 0) {  // check for cx
+                if (!validNumber(newAttribute->value))    // make sure the number is valid
+                    return false;
+                currCircle->cx = atof(newAttribute->value);
+            }
+            else if (strcmp(newAttribute->name, "cy") == 0) {  // check for cy
+                if (!validNumber(newAttribute->value))         // make sure the number is valid
+                    return false;
+                currCircle->cy = atof(newAttribute->value);
+            }
+            else if (strcmp(newAttribute->name, "r") == 0) {  // check for r
+                if (!validNumber(newAttribute->value))        // make sure the number is valid
+                    return false;
+                currCircle->r = atof(newAttribute->value);
+            }
+            else {
+                // loop thorugh and check all attributes in the list
+                attrIterator = createIterator(currCircle->otherAttributes);
+                for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
+                    currAttribute = (Attribute*)elem;
+                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
+                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current atribute and break out of the loop
+                        break;
+                    }
+                }
+
+                // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
+                if (elem == NULL) {
+                    insertBack(currCircle->otherAttributes, newAttribute);
+                    freeFlag = false;
+                }
+            }
+
+            // if the free flag is set, then free the new attribute, otherwise it's now in the list so don't free it
+            if (freeFlag) {
+                free(newAttribute->name);
+                free(newAttribute);
+            }
+
+            return true;
+
+        case RECT:
+            // loop elemIndex times to get the correct element in the list
+            otherIterator = createIterator(img->rectangles);
+            for (int i = 0; i < elemIndex; i++) {
+                elem = nextElement(&otherIterator);
+                currRect = (Rectangle*)elem;
+            }
+
+            if (strcmp(newAttribute->name, "x") == 0) {  // check for x
+                if (!validNumber(newAttribute->value))   // make sure the number is valid
+                    return false;
+                currRect->x = atof(newAttribute->value);
+            }
+            else if (strcmp(newAttribute->name, "y") == 0) {  // check for y
+                if (!validNumber(newAttribute->value))        // make sure the number is valid
+                    return false;
+                currRect->y = atof(newAttribute->value);
+            }
+            else if (strcmp(newAttribute->name, "width") == 0) {  // check for width
+                if (!validNumber(newAttribute->value))            // make sure the number is valid
+                    return false;
+                currRect->width = atof(newAttribute->value);
+            }
+            else if (strcmp(newAttribute->name, "height") == 0) {  // check for height
+                if (!validNumber(newAttribute->value))             // make sure the number is valid
+                    return false;
+                currRect->height = atof(newAttribute->value);
+            }
+            else {
+                // loop thorugh and check all attributes in the list
+                attrIterator = createIterator(currRect->otherAttributes);
+                for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
+                    currAttribute = (Attribute*)elem;
+                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
+                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current atribute and break out of the loop
+                        break;
+                    }
+                }
+
+                // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
+                if (elem == NULL) {
+                    insertBack(currRect->otherAttributes, newAttribute);
+                    freeFlag = false;
+                }
+            }
+
+            // if the free flag is set, then free the new attribute, otherwise it's now in the list so don't free it
+            if (freeFlag) {
+                free(newAttribute->name);
+                free(newAttribute);
+            }
+
+            return true;
+
+        case PATH:
+            // loop elemIndex times to get the correct element in the list
+            otherIterator = createIterator(img->paths);
+            for (int i = 0; i < elemIndex; i++) {
+                elem = nextElement(&otherIterator);
+                currPath = (Path*)elem;
+            }
+
+            if (strcmp(newAttribute->name, "d") == 0) {  // check for data
+                strcpy(currPath->data, newAttribute->value);
+            }
+            else {
+                // loop thorugh and check all attributes in the list
+                attrIterator = createIterator(currPath->otherAttributes);
+                for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
+                    currAttribute = (Attribute*)elem;
+                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
+                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current atribute and break out of the loop
+                        break;
+                    }
+                }
+
+                // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
+                if (elem == NULL) {
+                    insertBack(currPath->otherAttributes, newAttribute);
+                    freeFlag = false;
+                }
+            }
+
+            // if the free flag is set, then free the new attribute, otherwise it's now in the list so don't free it
+            if (freeFlag) {
+                free(newAttribute->name);
+                free(newAttribute);
+            }
+
+            return true;
+
+        case GROUP:
+            // loop elemIndex times to get the correct element in the list
+            otherIterator = createIterator(img->groups);
+            for (int i = 0; i < elemIndex; i++) {
+                elem = nextElement(&otherIterator);
+                currGroup = (Group*)elem;
+            }
+
+            // loop thorugh and check all attributes in the list
+            attrIterator = createIterator(currGroup->otherAttributes);
+            for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
+                currAttribute = (Attribute*)elem;
+                if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
+                    strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current atribute and break out of the loop
+                    break;
+                }
+            }
+
+            // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
+            if (elem == NULL) {
+                insertBack(currGroup->otherAttributes, newAttribute);
+                freeFlag = false;
+            }
+
+            // if the free flag is set, then free the new attribute, otherwise it's now in the list so don't free it
+            if (freeFlag) {
+                free(newAttribute->name);
+                free(newAttribute);
+            }
+
+            return true;
+
+        default:
+            printf("Something very very wrong has occuered, or %d isn't a type\n", elemType);
+            break;
+    }
+
     return false;
 }
 
 void addComponent(SVG* img, elementType type, void* newElement) {
+    // if img or new element are null, return and don't change anything
+    if (img == NULL || newElement == NULL) {
+        return;
+    }
+
+    // depending on type, insert the new element to the back of the correct list
+    switch (type) {
+        case CIRC:
+            insertBack(img->circles, newElement);
+            break;
+
+        case RECT:
+            insertBack(img->rectangles, newElement);
+            break;
+
+        case PATH:
+            insertBack(img->paths, newElement);
+            break;
+
+        default:
+            printf("Something went very wrong, or invalid element type");
+    }
 }
 
 char* attrToJSON(const Attribute* a) {
-    return NULL;
+    char* newJSON;
+
+    // if a is null return {}
+    if (a == NULL) {
+        return "{}";
+    }
+
+    // len of name and value, + 25 for extra chars
+    int len = strlen(a->name) + strlen(a->value) + 25;
+    newJSON = (char*)malloc(sizeof(char) * len);
+
+    // sprintf to newJSON
+    sprintf(newJSON, "{\"name\":\"%s\",\"value\":\"%s\"}", a->name, a->value);
+
+    return newJSON;
 }
 
 char* circleToJSON(const Circle* c) {
-    return NULL;
+    char* newJSON;
+
+    // if c is null return {}
+    if (c == NULL) {
+        return "{}";
+    }
+
+    // 16 per float, 8 per int, len of units, 45 extra
+    int len = (16 * 3) + 8 + strlen(c->units) + 45;
+    newJSON = (char*)malloc(sizeof(char) * len);
+
+    // sprintf to newJSON
+    sprintf(newJSON, "{\"cx\":%.2f,\"cy\":%.2f,\"r\":%.2f,\"numAttr\":%d,\"units\":\"%s\"}", c->cx, c->cy, c->r, getLength(c->otherAttributes), c->units);
+
+    return newJSON;
 }
 
 char* rectToJSON(const Rectangle* r) {
-    return NULL;
+    char* newJSON;
+
+    // if r is null return {}
+    if (r == NULL) {
+        return "{}";
+    }
+
+    // 16 per float, 8 per int, len of units, 45 extra
+    int len = (16 * 4) + 8 + strlen(r->units) + 60;
+    newJSON = (char*)malloc(sizeof(char) * len);
+
+    // sprintf to newJSON
+    sprintf(newJSON, "{\"x\":%.2f,\"y\":%.2f,\"w\":%.2f,\"h\":%.2f,\"numAttr\":%d,\"units\":\"%s\"}", r->x, r->y, r->width, r->height, getLength(r->otherAttributes), r->units);
+
+    return newJSON;
 }
 
 char* pathToJSON(const Path* p) {
-    return NULL;
+    char* newJSON;
+    int dataLen = strlen(p->data);
+
+    // if p is null return {}
+    if (p == NULL) {
+        return "{}";
+    }
+
+    // datalen + 8 + 25 if datalen <= 64, otherwise just cap at 64
+    int len = dataLen > 64 ? 64 + 8 + 25 : dataLen + 8 + 25;
+    newJSON = (char*)malloc(sizeof(char) * len);
+
+    // sprintf to newJSON
+    sprintf(newJSON, "{\"d\":\"%.64s\",\"numAttr\":%d}", p->data, getLength(p->otherAttributes));
+
+    return newJSON;
 }
 
 char* groupToJSON(const Group* g) {
-    return NULL;
+    char* newJSON;
+
+    // if p is null return {}
+    if (g == NULL) {
+        return "{}";
+    }
+
+    // 8 per int + 25 extra
+    int len = 2 * 8 + 25;
+    newJSON = (char*)malloc(sizeof(char) * len);
+
+    // sprintf to newJSON
+    sprintf(newJSON, "{\"children\":%d,\"numAttr\":%d}", (getLength(g->rectangles) + getLength(g->circles) + getLength(g->paths) + getLength(g->groups)), getLength(g->otherAttributes));
+
+    return newJSON;
 }
 
 char* attrListToJSON(const List* list) {

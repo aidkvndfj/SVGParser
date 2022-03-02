@@ -379,9 +379,12 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
         if (currSVG->rectangles == NULL || currSVG->circles == NULL || currSVG->paths == NULL || currSVG->groups == NULL || currSVG->otherAttributes == NULL)
             return NULL;
     }
-    else {
+    else if (bGroup != NULL) {
         if (bGroup->rectangles == NULL || bGroup->circles == NULL || bGroup->paths == NULL || bGroup->groups == NULL || bGroup->otherAttributes == NULL)
             return NULL;
+    }
+    else {
+        return NULL;
     }
 
     // newDoc = xmlNewDoc(BAD_CAST "1.0");
@@ -538,331 +541,36 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode) {
 
     return rootNode;
 }
-/*
-xmlDocPtr createTree(const SVG* currSVG) {
-    xmlDocPtr newDoc = NULL;
-    xmlNodePtr rootNode = NULL;
-    xmlNodePtr tempNode;
 
-    Rectangle* currRect;
-    Circle* currCircle;
-    Path* currPath;
-    Group* currGroup;
-    Attribute* currAttr;
-    ListIterator elementIterator;
-    ListIterator attrIterator;
-    void* elem;
-    void* elem2;
+bool validNumber(char* string) {
+    char valid[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    bool hasDot = false;
+    bool matchFlag = false;
 
-    char buff[256];
+    for (int i = 0; i < strlen(string); i++) {
+        matchFlag = false;
 
-    // make sure no lists are null
-    if (currSVG->rectangles == NULL || currSVG->circles == NULL || currSVG->paths == NULL || currSVG->groups == NULL || currSVG->otherAttributes == NULL)
-        return NULL;
+        if (string[i] == '.') {
+            if (hasDot) {
+                return false;
+            }
+            else {
+                hasDot = true;
+            }
+        }
+        else {
+            for (int j = 0; j < 10; j++) {
+                if (string[i] == valid[j]) {
+                    matchFlag = true;
+                    break;
+                }
+            }
 
-    newDoc = xmlNewDoc(BAD_CAST "1.0");
-    rootNode = xmlNewNode(NULL, BAD_CAST "svg");
-    xmlDocSetRootElement(newDoc, rootNode);
-
-    xmlNsPtr newNS = xmlNewNs(rootNode, (xmlChar*)currSVG->namespace, NULL);
-    xmlSetNs(rootNode, newNS);
-
-    attrIterator = createIterator(currSVG->otherAttributes);
-    for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
-        currAttr = (Attribute*)elem2;
-
-        if (currAttr->name == NULL)  // make sure the attr name isn't NULL
-            return NULL;
-
-        xmlNewProp(rootNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
-    }
-
-    xmlNewChild(rootNode, NULL, BAD_CAST "title", BAD_CAST currSVG->title);
-    xmlNewChild(rootNode, NULL, BAD_CAST "desc", BAD_CAST currSVG->description);
-
-    // add all rects to the xml tree
-    elementIterator = createIterator(currSVG->rectangles);
-    for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
-        currRect = (Rectangle*)elem;
-        tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "rect", NULL);
-
-        // make sure other attributes isn't null
-        if (currRect->otherAttributes == NULL)
-            return NULL;
-
-        // if (strcmp(currRect->units, "") == 0)
-        sprintf(buff, "%f%s", currRect->x, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->x);
-        xmlNewProp(tempNode, BAD_CAST "x", BAD_CAST buff);
-
-        // if (strcmp(currRect->units, "") == 0)
-        sprintf(buff, "%f%s", currRect->y, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->y);
-        xmlNewProp(tempNode, BAD_CAST "y", BAD_CAST buff);
-
-        // if (strcmp(currRect->units, "") == 0)
-        sprintf(buff, "%f%s", currRect->width, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->width);
-        xmlNewProp(tempNode, BAD_CAST "width", BAD_CAST buff);
-
-        // if (strcmp(currRect->units, "") == 0)
-        sprintf(buff, "%f%s", currRect->height, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->height);
-        xmlNewProp(tempNode, BAD_CAST "height", BAD_CAST buff);
-
-        attrIterator = createIterator(currRect->otherAttributes);
-        for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
-            currAttr = (Attribute*)elem2;
-
-            if (currAttr->name == NULL)  // make sure the attr name isn't NULL
-                return NULL;
-
-            xmlNewProp(tempNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
+            if (!matchFlag) {
+                return false;
+            }
         }
     }
 
-    // add all rects to the xml tree
-    elementIterator = createIterator(currSVG->circles);
-    for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
-        currCircle = (Circle*)elem;
-        tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "circle", NULL);
-
-        if (currCircle->otherAttributes == NULL)
-            return NULL;
-
-        // if (strcmp(currCircle->units, "") == 0)
-        sprintf(buff, "%f%s", currCircle->cx, currCircle->units);
-        // else
-        // sprintf(buff, "%f", currCircle->x);
-        xmlNewProp(tempNode, BAD_CAST "cx", BAD_CAST buff);
-
-        // if (strcmp(currCircle->units, "") == 0)
-        sprintf(buff, "%f%s", currCircle->cy, currCircle->units);
-        // else
-        // sprintf(buff, "%f", currCircle->y);
-        xmlNewProp(tempNode, BAD_CAST "cy", BAD_CAST buff);
-
-        // if (strcmp(currCircle->units, "") == 0)
-        sprintf(buff, "%f%s", currCircle->r, currCircle->units);
-        // else
-        // sprintf(buff, "%f", currCircle->width);
-        xmlNewProp(tempNode, BAD_CAST "r", BAD_CAST buff);
-
-        attrIterator = createIterator(currCircle->otherAttributes);
-        for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
-            currAttr = (Attribute*)elem2;
-
-            if (currAttr->name == NULL)  // make sure the attr name isn't NULL
-                return NULL;
-
-            xmlNewProp(tempNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
-        }
-    }
-
-    // add all rects to the xml tree
-    elementIterator = createIterator(currSVG->paths);
-    for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
-        currPath = (Path*)elem;
-        tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "path", NULL);
-
-        // make sure that the data and other attributes aren't NULL
-        if (currPath->otherAttributes == NULL || currPath->data == NULL)
-            return NULL;
-
-        xmlNewProp(tempNode, BAD_CAST "d", BAD_CAST currPath->data);
-
-        attrIterator = createIterator(currPath->otherAttributes);
-        for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
-            currAttr = (Attribute*)elem2;
-
-            if (currAttr->name == NULL)  // make sure the attr name isn't NULL
-                return NULL;
-
-            xmlNewProp(tempNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
-        }
-    }
-
-    // add all rects to the xml tree
-    elementIterator = createIterator(currSVG->groups);
-    for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
-        currGroup = (Group*)elem;
-
-        tempNode = createGroupNode(currGroup);
-
-        if (tempNode == NULL)
-            return NULL;
-
-        attrIterator = createIterator(currGroup->otherAttributes);
-        for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
-            currAttr = (Attribute*)elem2;
-
-            if (currAttr->name == NULL)  // make sure the attr name isn't NULL
-                return NULL;
-
-            xmlNewProp(tempNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
-        }
-
-        xmlAddChild(rootNode, tempNode);
-    }
-
-    return newDoc;
+    return true;
 }
-
-xmlNodePtr createGroupNode(Group* currGroup) {
-    xmlNodePtr rootNode = NULL;
-    xmlNodePtr tempNode;
-
-    Rectangle* currRect;
-    Circle* currCircle;
-    Path* currPath;
-    Group* currGroupGroup;
-    Attribute* currAttr;
-    ListIterator elementIterator;
-    ListIterator attrIterator;
-    void* elem;
-    void* elem2;
-
-    char buff[256];
-
-    // make sure no lists are null
-    if (currGroup->rectangles == NULL || currGroup->circles == NULL || currGroup->paths == NULL || currGroup->groups == NULL || currGroup->otherAttributes == NULL)
-        return NULL;
-
-    rootNode = xmlNewNode(NULL, BAD_CAST "g");
-
-    // add all rects to the xml tree
-    elementIterator = createIterator(currGroup->rectangles);
-    for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
-        currRect = (Rectangle*)elem;
-        tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "rect", NULL);
-
-        // make sure other attributes isn't null
-        if (currRect->otherAttributes == NULL)
-            return NULL;
-
-        // if (strcmp(currRect->units, "") == 0)
-        sprintf(buff, "%f%s", currRect->x, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->x);
-        xmlNewProp(tempNode, BAD_CAST "x", BAD_CAST buff);
-
-        // if (strcmp(currRect->units, "") == 0)
-        sprintf(buff, "%f%s", currRect->y, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->y);
-        xmlNewProp(tempNode, BAD_CAST "y", BAD_CAST buff);
-
-        // if (strcmp(currRect->units, "") == 0)
-        sprintf(buff, "%f%s", currRect->width, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->width);
-        xmlNewProp(tempNode, BAD_CAST "width", BAD_CAST buff);
-
-        // if (strcmp(currRect->units, "") == 0)
-        sprintf(buff, "%f%s", currRect->height, currRect->units);
-        // else
-        // sprintf(buff, "%f", currRect->height);
-        xmlNewProp(tempNode, BAD_CAST "height", BAD_CAST buff);
-
-        attrIterator = createIterator(currRect->otherAttributes);
-        for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
-            currAttr = (Attribute*)elem2;
-
-            if (currAttr->name == NULL)  // make sure the attr name isn't NULL
-                return NULL;
-
-            xmlNewProp(tempNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
-        }
-    }
-
-    // add all rects to the xml tree
-    elementIterator = createIterator(currGroup->circles);
-    for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
-        currCircle = (Circle*)elem;
-        tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "circle", NULL);
-
-        if (currCircle->otherAttributes == NULL)
-            return NULL;
-
-        // if (strcmp(currCircle->units, "") == 0)
-        sprintf(buff, "%f%s", currCircle->cx, currCircle->units);
-        // else
-        // sprintf(buff, "%f", currCircle->x);
-        xmlNewProp(tempNode, BAD_CAST "cx", BAD_CAST buff);
-
-        // if (strcmp(currCircle->units, "") == 0)
-        sprintf(buff, "%f%s", currCircle->cy, currCircle->units);
-        // else
-        // sprintf(buff, "%f", currCircle->y);
-        xmlNewProp(tempNode, BAD_CAST "cy", BAD_CAST buff);
-
-        // if (strcmp(currCircle->units, "") == 0)
-        sprintf(buff, "%f%s", currCircle->r, currCircle->units);
-        // else
-        // sprintf(buff, "%f", currCircle->width);
-        xmlNewProp(tempNode, BAD_CAST "r", BAD_CAST buff);
-
-        attrIterator = createIterator(currCircle->otherAttributes);
-        for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
-            currAttr = (Attribute*)elem2;
-
-            if (currAttr->name == NULL)  // make sure the attr name isn't NULL
-                return NULL;
-
-            xmlNewProp(tempNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
-        }
-    }
-
-    // add all rects to the xml tree
-    elementIterator = createIterator(currGroup->paths);
-    for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
-        currPath = (Path*)elem;
-        tempNode = xmlNewChild(rootNode, NULL, BAD_CAST "path", NULL);
-
-        // make sure that the data and other attributes aren't NULL
-        if (currPath->otherAttributes == NULL || currPath->data == NULL)
-            return NULL;
-
-        xmlNewProp(tempNode, BAD_CAST "d", BAD_CAST currPath->data);
-
-        attrIterator = createIterator(currPath->otherAttributes);
-        for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
-            currAttr = (Attribute*)elem2;
-
-            if (currAttr->name == NULL)  // make sure the attr name isn't NULL
-                return NULL;
-
-            xmlNewProp(tempNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
-        }
-    }
-
-    // add all rects to the xml tree
-    elementIterator = createIterator(currGroup->groups);
-    for (elem = nextElement(&elementIterator); elem != NULL; elem = nextElement(&elementIterator)) {
-        currGroupGroup = (Group*)elem;
-
-        tempNode = createGroupNode(currGroupGroup);
-
-        if (tempNode == NULL)
-            return NULL;
-
-        attrIterator = createIterator(currGroupGroup->otherAttributes);
-        for (elem2 = nextElement(&attrIterator); elem2 != NULL; elem2 = nextElement(&attrIterator)) {
-            currAttr = (Attribute*)elem2;
-
-            if (currAttr->name == NULL)  // make sure the attr name isn't NULL
-                return NULL;
-
-            xmlNewProp(tempNode, BAD_CAST currAttr->name, BAD_CAST currAttr->value);
-        }
-
-        xmlAddChild(rootNode, tempNode);
-    }
-
-    return rootNode;
-}
-*/

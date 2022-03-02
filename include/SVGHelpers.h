@@ -54,4 +54,6 @@ xmlNodePtr createTree(const SVG* currSVG, Group* bGroup, xmlNodePtr rootNode);
 
 xmlNodePtr createGroupNode(Group* currGroup);
 
+bool validNumber(char* string);
+
 #endif

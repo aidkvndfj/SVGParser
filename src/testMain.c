@@ -18,7 +18,21 @@ int main(void) {
     }
 
     SVG2 = createValidSVG("test.svg", "svg.xsd");
+
     printf("%d\n", validateSVG(SVG2, "svg.xsd"));
+
+    Attribute* newAttribute = malloc(sizeof(Attribute) + 22);
+    newAttribute->name = malloc(sizeof(char) * 2);
+    strcpy(newAttribute->name, "x\0");
+    strcpy(newAttribute->value, "12345678900987654321\0");
+
+    if (!setAttribute(SVG2, RECT, 1, newAttribute)) {
+        free(newAttribute->name);
+        free(newAttribute);
+    }
+
+    printf("%d\n", validateSVG(SVG2, "svg.xsd"));
+    writeSVG(SVG2, "test.svg");
 
     deleteSVG(SVG1);
     deleteSVG(SVG2);
