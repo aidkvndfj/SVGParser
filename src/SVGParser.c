@@ -387,7 +387,6 @@ bool writeSVG(const SVG* img, const char* fileName) {
 }
 
 bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newAttribute) {
-    ListIterator attrIterator;
     ListIterator otherIterator;
     Attribute* currAttribute = NULL;
     Rectangle* currRect = NULL;
@@ -414,17 +413,20 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
             }
             else {
                 // loop through the list of attributes and try to find a match
-                attrIterator = createIterator(img->otherAttributes);
-                for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
-                    currAttribute = (Attribute*)elem;
-                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we found a match, set the curr attribute and break out of the loop
+                Node* attrNode = img->otherAttributes->head;
+                while (attrNode != NULL) {
+                    currAttribute = (Attribute*)attrNode->data;
+                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {
+                        currAttribute = realloc(currAttribute, sizeof(Attribute) + strlen(newAttribute->value) + 1);
                         strcpy(currAttribute->value, newAttribute->value);
+                        attrNode->data = currAttribute;
                         break;
                     }
+                    attrNode = attrNode->next;
                 }
 
                 // if elem is null, then there was no match. So insert the new attribute and set free flag to false
-                if (elem == NULL) {
+                if (attrNode == NULL) {
                     insertBack(img->otherAttributes, newAttribute);
                     freeFlag = false;
                 }
@@ -466,18 +468,20 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
                 currCircle->r = atof(newAttribute->value);
             }
             else {
-                // loop thorugh and check all attributes in the list
-                attrIterator = createIterator(currCircle->otherAttributes);
-                for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
-                    currAttribute = (Attribute*)elem;
-                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
-                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current attribute and break out of the loop
+                Node* attrNode = currCircle->otherAttributes->head;
+                while (attrNode != NULL) {
+                    currAttribute = (Attribute*)attrNode->data;
+                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {
+                        currAttribute = realloc(currAttribute, sizeof(Attribute) + strlen(newAttribute->value) + 1);
+                        strcpy(currAttribute->value, newAttribute->value);
+                        attrNode->data = currAttribute;
                         break;
                     }
+                    attrNode = attrNode->next;
                 }
 
                 // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
-                if (elem == NULL) {
+                if (attrNode == NULL) {
                     insertBack(currCircle->otherAttributes, newAttribute);
                     freeFlag = false;
                 }
@@ -523,18 +527,20 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
                 currRect->height = atof(newAttribute->value);
             }
             else {
-                // loop thorugh and check all attributes in the list
-                attrIterator = createIterator(currRect->otherAttributes);
-                for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
-                    currAttribute = (Attribute*)elem;
-                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
-                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current attribute and break out of the loop
+                Node* attrNode = currRect->otherAttributes->head;
+                while (attrNode != NULL) {
+                    currAttribute = (Attribute*)attrNode->data;
+                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {
+                        currAttribute = realloc(currAttribute, sizeof(Attribute) + strlen(newAttribute->value) + 1);
+                        strcpy(currAttribute->value, newAttribute->value);
+                        attrNode->data = currAttribute;
                         break;
                     }
+                    attrNode = attrNode->next;
                 }
 
                 // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
-                if (elem == NULL) {
+                if (attrNode == NULL) {
                     printf("new attribute '%s'\n", newAttribute->name);
                     insertBack(currRect->otherAttributes, newAttribute);
                     freeFlag = false;
@@ -565,17 +571,20 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
             }
             else {
                 // loop thorugh and check all attributes in the list
-                attrIterator = createIterator(currPath->otherAttributes);
-                for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
-                    currAttribute = (Attribute*)elem;
-                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
-                        strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current attribute and break out of the loop
+                Node* attrNode = currPath->otherAttributes->head;
+                while (attrNode != NULL) {
+                    currAttribute = (Attribute*)attrNode->data;
+                    if (strcmp(currAttribute->name, newAttribute->name) == 0) {
+                        currAttribute = realloc(currAttribute, sizeof(Attribute) + strlen(newAttribute->value) + 1);
+                        strcpy(currAttribute->value, newAttribute->value);
+                        attrNode->data = currAttribute;
                         break;
                     }
+                    attrNode = attrNode->next;
                 }
 
                 // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
-                if (elem == NULL) {
+                if (attrNode == NULL) {
                     insertBack(currPath->otherAttributes, newAttribute);
                     freeFlag = false;
                 }
@@ -601,17 +610,19 @@ bool setAttribute(SVG* img, elementType elemType, int elemIndex, Attribute* newA
             }
 
             // loop thorugh and check all attributes in the list
-            attrIterator = createIterator(currGroup->otherAttributes);
-            for (elem = nextElement(&attrIterator); elem != NULL; elem = nextElement(&attrIterator)) {
-                currAttribute = (Attribute*)elem;
-                if (strcmp(currAttribute->name, newAttribute->name) == 0) {  // if we find a match
-                    strcpy(currAttribute->value, newAttribute->value);       // copy the value to the current attribute and break out of the loop
+            Node* attrNode = currGroup->otherAttributes->head;
+            while (attrNode != NULL) {
+                currAttribute = (Attribute*)attrNode->data;
+                if (strcmp(currAttribute->name, newAttribute->name) == 0) {
+                    currAttribute = realloc(currAttribute, sizeof(Attribute) + strlen(newAttribute->value) + 1);
+                    strcpy(currAttribute->value, newAttribute->value);
+                    attrNode->data = currAttribute;
                     break;
                 }
+                attrNode = attrNode->next;
             }
-
             // if elem is null, that means we didn't find a match, in the other attributes list, so add new attribute and set freeflag to false
-            if (elem == NULL) {
+            if (attrNode == NULL) {
                 insertBack(currGroup->otherAttributes, newAttribute);
                 freeFlag = false;
             }
