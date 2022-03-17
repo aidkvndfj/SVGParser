@@ -4,20 +4,15 @@ jQuery(document).ready(function() {
     jQuery.ajax({
         type: 'get',            //Request type
         dataType: 'json',       //Data type - we will use JSON for almost everything 
-        url: '/endpoint1',   //The server endpoint we are connecting to
-        data: {
-            data1: "Value 1",
-            data2:1234.56
-        },
+        url: '/uploads',        //The server endpoint we are connecting to
         success: function (data) {
-            /*  Do something with returned object
-                Note that what we get is an object, not a string, 
-                so we do not need to parse it on the server.
-                JavaScript really does handle JSONs seamlessly
-            */
-            jQuery('#blah').html("On page load, received string '"+data.somethingElse+"' from server");
-            //We write the object to the console to show that the request was successful
-            console.log(data); 
+            if (data.length === 0) {
+                $('#table').append("<tr><td>No Files<tr><td");
+            } else {
+                for (var i = 0; i < data.length; i++) {
+                    $('#table').append(<img src=data[i] width=200px>);
+                }
+            }
 
         },
         fail: function(error) {
@@ -41,5 +36,10 @@ jQuery(document).ready(function() {
     $('#uploadForm').submit(function(e){
         console.log("Upload Success");
     });
+
+    $('dropdown').change(function(){
+        let fileName = $('dropdown option:selected').text();
+        console.log(fileName);
+    })
 
 });

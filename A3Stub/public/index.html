@@ -18,43 +18,46 @@
 </head>
 <body>
     <h3>SVG Image Viewer</h3>
-    <div>
-        <table border="1" style="width: 100%;" >
-            <thead>
-                <tr>
-                    <th scope="col">Image (click to download)</th>
-                    <th scope="col">File Name (click to download)</th>
-                    <th scope="col">File Size</th>
-                    <th scope="col">Number of Rectangles</th>
-                    <th scope="col">Number of Circles</th>
-                    <th scope="col">Number of Paths</th>
-                    <th scope="col">Numbers of Groups</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><object data="uploads/Emoji_poo.svg" width = 200></td>
-                    <td>Emoji_poo.svg</td>
-                    <td>1KB</td>
-                    <td>2</td>
-                    <td>4</td>
-                    <td>4</td>
-                    <td>2</td>
-                </tr>
-            </tbody>
-        </table>
-        <form ref='uploadForm'
-            id='uploadForm'
-        action='/upload'
-        method='post'
-        encType="multipart/form-data">
-        <div class="form-group">
-            <input type="file" name="uploadFile" class="btn btn-secondary">
-            <input type='submit' value='Upload' class="btn btn-secondary">
-        </div>
-        </form>
+
+    <h4>File Log Panel</h4>
+    <table border="1" style="width: 100%;" id="fileLogTable">
+        <thead>
+            <tr>
+                <th scope="col">Image (click to download)</th>
+                <th scope="col">File Name (click to download)</th>
+                <th scope="col">File Size</th>
+                <th scope="col">Number of Rectangles</th>
+                <th scope="col">Number of Circles</th>
+                <th scope="col">Number of Paths</th>
+                <th scope="col">Numbers of Groups</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <form ref='uploadForm'
+        id='uploadForm'
+    action='/upload'
+    method='post'
+    encType="multipart/form-data">
+    <div class="form-group">
+        <input type="file" name="uploadFile" class="btn btn-secondary">
+        <input type='submit' value='Upload' class="btn btn-secondary">
     </div>
+    </form>
+
+    <h4>SVG View Panel</h4>
     
+    <label for="files">Select file to display:</label>
+    <select name="files" class="dropdown" id="dropdown">
+        <option selected>None</option>
+    </select>
+    <div id="viewPanel">
+        <img class="center" id="viewPanelImage" align="middle" src="">
+        <table id ="mytable">
+        </table>
+    </div>
+
     <!--
     <h3>SVG Image Viewer</h3>
     If the A3 stub is running and rects.svg exists in the uploads/ directory on the server, then clicking on the link below will download it from the server.<br>
