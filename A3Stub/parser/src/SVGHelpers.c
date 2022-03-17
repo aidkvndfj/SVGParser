@@ -1,7 +1,5 @@
 #include "SVGHelpers.h"
 
-#include "SVGParser.h"
-
 void parseSVG(xmlNode* rootNode, SVG* currSVG, Group* currGroup) {
     xmlNode* currNode = NULL;
 
@@ -628,4 +626,52 @@ bool validNumber(char* string) {
     }
 
     return true;
+}
+
+int rectsInSVG(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    List* rects = getRects(currSVG);
+
+    int num = getLength(rects);
+
+    freeList(rects);
+    deleteSVG(currSVG);
+
+    return num;
+}
+
+int circsInSVG(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    List* circs = getCircles(currSVG);
+
+    int num = getLength(circs);
+
+    freeList(circs);
+    deleteSVG(currSVG);
+
+    return num;
+}
+
+int pathsInSVG(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    List* paths = getPaths(currSVG);
+
+    int num = getLength(paths);
+
+    freeList(paths);
+    deleteSVG(currSVG);
+
+    return num;
+}
+
+int groupsInSVG(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    List* groups = getGroups(currSVG);
+
+    int num = getLength(groups);
+
+    freeList(groups);
+    deleteSVG(currSVG);
+
+    return num;
 }

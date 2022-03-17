@@ -134,4 +134,10 @@ bool validateDoc(xmlDocPtr doc, const char* schemaFile);
  */
 bool validNumber(char* string);
 
+//~~~~~~~ A3 Funcs ~~~~~~~//
+int rectsInSVG(char* fileName, char* schemaFile);
+int circsInSVG(char* fileName, char* schemaFile);
+int pathsInSVG(char* fileName, char* schemaFile);
+int groupsInSVG(char* fileName, char* schemaFile);
+
 #endif
