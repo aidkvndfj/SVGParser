@@ -37,4 +37,9 @@ jQuery(document).ready(function() {
             //Create an object for connecting to another waypoint
         });
     });
+
+    $('#uploadForm').submit(function(e){
+        console.log("Upload Success");
+    });
+
 });

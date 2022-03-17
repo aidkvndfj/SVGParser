@@ -24,6 +24,10 @@ input[type=submit], button {
     cursor: pointer;
     cursor: hand;
 }
+table, th, td{
+    text-align: center;
+    border: 2px solid;
+}
 @media(max-width: 900px) {
     html {
         font-size: 14px !important;

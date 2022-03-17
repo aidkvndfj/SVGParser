@@ -71,6 +71,14 @@ app.get('/uploads/:name', function(req , res){
 
 //******************** Your code goes here ******************** 
 
+let sharedLib = ffi.Library('./libSvgParser', {
+  'createSVG': ['pointer' ['string']],
+  'SVGToString': ['string' ['pointer']],
+  'rectToJSON': ['string' ['pointer']],
+});
+
+// console.log(sharedLib.SVGToString(sharedLib.createSVG("rects.svg")));
+
 //Sample endpoint
 app.get('/endpoint1', function(req , res){
   let retStr = req.query.data1 + " " + req.query.data2;
