@@ -93,6 +93,8 @@ app.get('/SVGtoJSON/:fileName', function (req, res) {
         let xsd = "svg.xsd";
         let totalJSON = '[' + svgParser.requestSVGRects(catFileName, xsd) + ',' + svgParser.requestSVGCircles(catFileName, xsd) + ']';
         res.send({ Title: svgParser.requestSVGTitle(catFileName, xsd), Desc: svgParser.requestSVGDesc(catFileName, xsd), Attrs: totalJSON });
+    } else {
+        alert(`${fileName} is a invalid SVG`);
     }
 });
 
@@ -109,6 +111,8 @@ app.get('/uploadSVG', function (req, res) {
             let parsedJSON = JSON.parse(svgParser.validSVGToJSON("uploads/" + allFiles[i], 'svg.xsd'));
             allSVGs[nextIndex] = [allFiles[i], Math.round(size / 1024), parsedJSON['numRect'], parsedJSON['numCirc'], parsedJSON['numPaths'], parsedJSON['numGroups']];
             nextIndex += 1;
+        } else {
+            alert(`${fileName} is a invalid SVG`);
         }
     }
 

@@ -10,7 +10,7 @@ jQuery(document).ready(function () {
                 $('#fileLogTable').append("<tr><td>No Files</td></tr>");
             } else {
                 for (let i = 0; i < data.length; i++) {
-                    $('#fileLogTable').append("<tr><td><a download='" + data[i][0] + "' href='uploads/" + data[i][0] + "' title='" + data[i][0] + "'><img width=200px src='/uploads/" + data[i][0] + "'></a></td><td><a download='" + data[i][0] + "' href='uploads/" + data[i][0] + "' title='" + data[i][0] + "'>" + data[i][0] + "</a></td><td>" + data[i][1] + "KB</td><td>" + data[i][2] + "</td><td>" + data[i][3] + "</td><td>" + data[i][4] + "</td><td>" + data[i][5] + "</td></tr>");
+                    $('#fileLogTable').append(`<tr><td><a download='${data[i][0]}' href='uploads/${data[i][0]}' title='${data[i][0]}'><img width=200px src='/uploads/${data[i][0]}'></a></td><td><a download='${data[i][0]}' href='uploads/${data[i][0]}' title='${data[i][0]}'>${data[i][0]}</a></td><td>${data[i][1]}KB</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`);
 
                     $('#dropdown').append("<option>" + data[i][0] + "</option>");
                 }
