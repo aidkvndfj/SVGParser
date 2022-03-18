@@ -675,3 +675,69 @@ int groupsInSVG(char* fileName, char* schemaFile) {
 
     return num;
 }
+
+int isValidSVG(char* fileName, char* schemaFile) {
+    xmlDocPtr doc;
+    doc = xmlReadFile(fileName, NULL, 0);  // read the file
+
+    if (validateDoc(doc, schemaFile))
+        return 1;
+
+    return 0;
+}
+
+char* validSVGToJSON(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    if (currSVG != NULL) {
+        char* tmpStr = SVGtoJSON(currSVG);
+        deleteSVG(currSVG);
+        return tmpStr;
+    }
+    else {
+        return NULL;
+    }
+}
+
+char* requestSVGTitle(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    char* title = currSVG->title;
+    title = strtok(title, "\n");
+    deleteSVG(currSVG);
+    return title;
+}
+
+char* requestSVGDesc(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    char* desc = currSVG->description;
+    desc = strtok(desc, "\n");
+    deleteSVG(currSVG);
+    return desc;
+}
+
+char* requestSVGRects(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    char* json = rectListToJSON(currSVG->rectangles);
+    deleteSVG(currSVG);
+    return json;
+}
+
+char* requestSVGCircles(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    char* json = circListToJSON(currSVG->circles);
+    deleteSVG(currSVG);
+    return json;
+}
+
+char* requestSVGPaths(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    char* json = pathListToJSON(currSVG->paths);
+    deleteSVG(currSVG);
+    return json;
+}
+
+char* requestSVGGroups(char* fileName, char* schemaFile) {
+    SVG* currSVG = createValidSVG(fileName, schemaFile);
+    char* json = groupListToJSON(currSVG->groups);
+    deleteSVG(currSVG);
+    return json;
+}

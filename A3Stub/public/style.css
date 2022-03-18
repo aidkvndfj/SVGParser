@@ -12,6 +12,16 @@ body {
     line-height: 1.75;
     background-color: #FFFFFF;
 }
+
+.panel {
+    height: 65%;
+    overflow: auto;
+}
+
+.table {
+    width: 100%;
+}
+
 a:link:hover {
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;

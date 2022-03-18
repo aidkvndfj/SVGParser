@@ -71,11 +71,29 @@ app.get('/uploads/:name', function (req, res) {
 
 //******************** Your code goes here ******************** 
 const svgParser = ffi.Library('./parser/bin/libsvgparser.so', {
-    'rectsInSVG': ['int', ['String', 'String']],
-    'circsInSVG': ['int', ['String', 'String']],
-    'pathsInSVG': ['int', ['String', 'String']],
-    'groupsInSVG': ['int', ['String', 'String']],
-    'validateSVG': 
+    'rectsInSVG': ['int', ['String', 'String']], // Get the total rects in a filename svg
+    'circsInSVG': ['int', ['String', 'String']], // get the total circles in a filename svg
+    'pathsInSVG': ['int', ['String', 'String']], // get the total paths in a filename svg
+    'groupsInSVG': ['int', ['String', 'String']], // Get the total groups in a filename svg
+    'isValidSVG': ['int', ['String', 'String']], // check if a given filename svg is a valid svg
+    'validSVGToJSON': ['String', ['String', 'String']], // translate a svg attributes to a JSON string
+    'requestSVGTitle': ['String', ['String', 'String']], // get the title of a filename svg
+    'requestSVGDesc': ['String', ['String', 'String']], // get the desc of a filename svg
+    'requestSVGRects': ['String', ['String', 'String']], // get the rect list of a filename svg as a json
+    'requestSVGCircles': ['String', ['String', 'String']], // get the circle list of a filename svg as a json
+    'requestSVGPaths': ['String', ['String', 'String']], // get the path list of a filename svg as a json
+    'requestSVGGroups': ['String', ['String', 'String']], // get the group list of a filename svg as a json
+});
+
+app.get('/SVGtoJSON/:fileName', function (req, res) {
+    let fileName = req.params.fileName;
+
+    if (svgParser.isValidSVG('uploads/' + fileName, "svg.xsd")) {
+        let catFileName = 'uploads/' + fileName;
+        let xsd = "svg.xsd";
+        let totalJSON = '[' + svgParser.requestSVGRects(catFileName, xsd) + ',' + svgParser.requestSVGCircles(catFileName, xsd) + ']';
+        res.send({ Title: svgParser.requestSVGTitle(catFileName, xsd), Desc: svgParser.requestSVGDesc(catFileName, xsd), Attrs: totalJSON });
+    }
 });
 
 app.get('/uploadSVG', function (req, res) {
@@ -83,31 +101,19 @@ app.get('/uploadSVG', function (req, res) {
     let allFiles = fs.readdirSync('./uploads');
     let nextIndex = 0;
     var allSVGs = [];
+
     for (let i = 0; i < allFiles.length; i++) {
-        if (allFiles[i].includes('.svg')) {
+        if (allFiles[i].includes('.svg') && svgParser.isValidSVG("uploads/" + allFiles[i], 'svg.xsd') == 1) {
             var fileInfo = fs.statSync("uploads/" + allFiles[i]);
             var size = fileInfo['size'];
-            var numRects = svgParser.rectsInSVG("uploads/" + allFiles[i], 'svg.xsd');
-            var numCircs = svgParser.circsInSVG("uploads/" + allFiles[i], 'svg.xsd');
-            var numPaths = svgParser.pathsInSVG("uploads/" + allFiles[i], 'svg.xsd');
-            var numGroups = svgParser.groupsInSVG("uploads/" + allFiles[i], 'svg.xsd');
-            allSVGs[nextIndex] = [allFiles[i], Math.round(size / 1024), numRects, numCircs, numPaths, numGroups];
+            let parsedJSON = JSON.parse(svgParser.validSVGToJSON("uploads/" + allFiles[i], 'svg.xsd'));
+            allSVGs[nextIndex] = [allFiles[i], Math.round(size / 1024), parsedJSON['numRect'], parsedJSON['numCirc'], parsedJSON['numPaths'], parsedJSON['numGroups']];
             nextIndex += 1;
         }
     }
+
     console.log("Ending upload SVG");
     res.send(allSVGs);
-});
-
-//Sample endpoint
-app.get('/endpoint1', function (req, res) {
-    let retStr = req.query.data1 + " " + req.query.data2;
-
-    res.send(
-        {
-            somethingElse: retStr
-        }
-    );
 });
 
 app.listen(portNum);

@@ -140,4 +140,15 @@ int circsInSVG(char* fileName, char* schemaFile);
 int pathsInSVG(char* fileName, char* schemaFile);
 int groupsInSVG(char* fileName, char* schemaFile);
 
+int isValidSVG(char* fileName, char* schemaFile);
+
+char* validSVGToJSON(char* fileName, char* schemaFile);
+
+char* requestSVGTitle(char* fileName, char* schemaFile);
+char* requestSVGDesc(char* fileName, char* schemaFile);
+char* requestSVGRects(char* fileName, char* schemaFile);
+char* requestSVGCircles(char* fileName, char* schemaFile);
+char* requestSVGPaths(char* fileName, char* schemaFile);
+char* requestSVGGroups(char* fileName, char* schemaFile);
+
 #endif
