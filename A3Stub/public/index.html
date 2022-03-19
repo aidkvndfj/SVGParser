@@ -3,7 +3,7 @@
 
 <head>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-    <title>Eric Morse - SVG Image Viewer</title>
+    <title>Eric Morse(1141504) - SVG Image Viewer</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="An SVG parser using c.">
@@ -26,7 +26,7 @@
 </head>
 
 <body>
-    <h3>SVG Image Viewer</h3>
+    <h3>Eric Morse - SVG Image Viewer</h3>
 
     <h4>File Log Panel</h4>
     <div id="FileLogPanel" class="panel">
@@ -112,17 +112,162 @@
         <tbody>
             <tr>
                 <td colspan="1" style="width: 45%;">
-                    <label for="files">Select Attribute to change:</label>
-                    <select name="files" class="changeAttrDropBox" id="changeAttrDropBox">
+                    <label for="changeAttr">Select Attribute to change:</label>
+                    <select name="changeAttr" class="changeAttrDropBox" id="changeAttrDropBox">
                     </select>
                 </td>
                 <td colspan="2" style="width: 55%;">
                     <input id="charAttrInput" type="text" size="40">
-                    <input id="changeButton" type="submit" value='Change' class="btn btn-secondary">
+                    <input id="changeAttrButton" type="submit" value='Change' class="btn btn-secondary">
                 </td>
             </tr>
         </tbody>
     </table>
+
+    <table class="table" id="changeTitleTable">
+        <thead>
+            <tr>
+                <th colspan="2">Change Title/Desc</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="1" style="width: 45%;">
+                    <label for="changeTitle">Select which one to change:</label>
+                    <select name="changeTitle" class="changeTitleDropBox" id="changeTitleDropBox">
+                        <option selected>Title</option>
+                        <option>Description</option>
+                    </select>
+                </td>
+                <td colspan="2" style="width: 55%;">
+                    <input id="changeTitleInput" type="text" maxlength="255" size="40">
+                    <input id="changeTitleButton" type="submit" value='Change' class="btn btn-secondary">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div id="Create Form">
+        <form id="createSVGForms" action="/newSVGInfo">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th colspan="2">Create New SVG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">Add Rect(Leave empty to not add)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="svgName">Name:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="svgName" name="svgName" value=""
+                                size="40"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="svgTitle">Title:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="svgTitle" name="svgTitle" value=""
+                                size="40" maxlength="255"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="svgDesc">Desc:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="svgDesc" name="svgDesc" value=""
+                                size="40" maxlength="255"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Add Rect(Leave empty to not add)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="xPos">X Position:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="xPos" name="xPos" value="0"
+                                size="40"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="yPos">Y Position:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="yPos" name="yPos" value="0"
+                                size="40"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="rectHeight">Height:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="rectHeight" name="rectHeight"
+                                value="0" size="40"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="rectWidth">Width:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="rectWidth" name="rectWidth" value="0"
+                                size="40"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Add Circle(Leave empty to not add)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="cxPos">X Position:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="cxPos" name="cxPos" value="0"
+                                size="40"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="cyPos">Y Position:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="cyPos" name="cyPos" value="0"
+                                size="40"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="radius">Radius:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="radius" name="radius" value="0"
+                                size="40"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Add Path(Leave empty to not add)</td>
+                    </tr>
+                    <tr>
+                        <td colspan="1" style="width: 30%;"><label for="pathData">Data:</label></td>
+                        <td colspan="1" style="width: 70%;"><input type="text" id="pathData" name="pathData" value=""
+                                size="40"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input id="newSVGButton" type="submit" value='Create SVG' class="btn btn-secondary">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+    <div id="Add Shape Form">
+        <form id="addShapeForm" action="/addShapeInfo">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th colspan="2">Add a Shape</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <label for="addShapForm">Select Type Of Shape</label>
+                            <select name="addShapForm" class="shapeTypeDropDown" id="shapeTypeDropDown">
+                                <option selected>Rectangle</option>
+                                <option>Circle</option>
+                            </select>
+
+                            <label for="addShapForm">Select file to add to:</label>
+                            <select name="addShapForm" class="shapeSVGDropDown" id="shapeSVGDropDown">
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody id="dynamicMenu">
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            <input id="addShapeButton" type="submit" value='Add Shape' class="btn btn-secondary">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
 
 
     <!-- Leave me at the bottom of body -->

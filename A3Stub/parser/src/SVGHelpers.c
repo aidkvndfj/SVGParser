@@ -814,6 +814,67 @@ char* requestIndexGroupAttrs(char* fileName, int index) {
     return json;
 }
 
+char* setRectAttribute(char* fileName, int index, char* attribute, char* val) {
+    SVG* currSVG = createSVG(fileName);
+    ListIterator iter = createIterator(currSVG->rectangles);
+    Attribute* currAttribute;
+    Node* attrNode;
+    void* elem;
+
+    for (int i = 0; i < index; i++) {
+        elem = nextElement(&iter);
+    }
+    Rectangle* currRectangle = (Rectangle*)elem;
+
+    if (strcmp(attribute, "x") == 0) {
+        if (!validNumber(val))
+            return "ERROR:INVALID_NUM";
+        currRectangle->x = atof(val);
+    }
+    else if (strcmp(attribute, "y") == 0) {
+        if (!validNumber(val))
+            return "ERROR:INVALID_NUM";
+        currRectangle->y = atof(val);
+    }
+    else if (strcmp(attribute, "width") == 0) {
+        if (!validNumber(val))
+            return "ERROR:INVALID_NUM";
+        currRectangle->width = atof(val);
+    }
+    else if (strcmp(attribute, "height") == 0) {
+        if (!validNumber(val))
+            return "ERROR:INVALID_NUM";
+        currRectangle->height = atof(val);
+    }
+    else {
+        attrNode = currRectangle->otherAttributes->head;
+        while (attrNode != NULL) {
+            currAttribute = (Attribute*)attrNode->data;
+            if (strcmp(currAttribute->name, attribute) == 0) {
+                currAttribute = realloc(currAttribute, sizeof(Attribute) + strlen(val) + 1);
+                strcpy(currAttribute->value, val);
+                attrNode->data = currAttribute;
+                break;
+            }
+            attrNode = attrNode->next;
+        }
+    }
+
+    if (attrNode == NULL) {
+        deleteSVG(currSVG);
+        return "ERROR:NOT_FOUND";
+    }
+
+    if (validateSVG(currSVG, "svg.xsd") == false) {
+        deleteSVG(currSVG);
+        return "ERROR:INVALID_SVG";
+    }
+    writeSVG(currSVG, fileName);
+    deleteSVG(currSVG);
+
+    return "success";
+}
+
 char* setCircAttribute(char* fileName, int index, char* attribute, char* val) {
     SVG* currSVG = createSVG(fileName);
     ListIterator iter = createIterator(currSVG->circles);
@@ -827,12 +888,18 @@ char* setCircAttribute(char* fileName, int index, char* attribute, char* val) {
     Circle* currCircle = (Circle*)elem;
 
     if (strcmp(attribute, "cx") == 0) {
+        if (!validNumber(val))
+            return "ERROR:INVALID_NUM";
         currCircle->cx = atof(val);
     }
     else if (strcmp(attribute, "cy") == 0) {
+        if (!validNumber(val))
+            return "ERROR:INVALID_NUM";
         currCircle->cy = atof(val);
     }
     else if (strcmp(attribute, "r") == 0) {
+        if (!validNumber(val))
+            return "ERROR:INVALID_NUM";
         currCircle->r = atof(val);
     }
     else {
@@ -854,8 +921,222 @@ char* setCircAttribute(char* fileName, int index, char* attribute, char* val) {
         return "ERROR:NOT_FOUND";
     }
 
+    if (validateSVG(currSVG, "svg.xsd") == false) {
+        deleteSVG(currSVG);
+        return "ERROR:INVALID_SVG";
+    }
     writeSVG(currSVG, fileName);
     deleteSVG(currSVG);
 
     return "success";
+}
+
+char* setPathAttribute(char* fileName, int index, char* attribute, char* val) {
+    SVG* currSVG = createSVG(fileName);
+    ListIterator iter = createIterator(currSVG->paths);
+    Attribute* currAttribute;
+    Node* attrNode;
+    void* elem;
+
+    for (int i = 0; i < index; i++) {
+        elem = nextElement(&iter);
+    }
+    Path* currPath = (Path*)elem;
+
+    if (strcmp(attribute, "data") == 0) {
+        currPath = realloc(currPath, sizeof(Path) + ((strlen(val) + 1) * sizeof(char)));
+        strcpy(currPath->data, val);
+    }
+    else {
+        attrNode = currPath->otherAttributes->head;
+        while (attrNode != NULL) {
+            currAttribute = (Attribute*)attrNode->data;
+            if (strcmp(currAttribute->name, attribute) == 0) {
+                currAttribute = realloc(currAttribute, sizeof(Attribute) + strlen(val) + 1);
+                strcpy(currAttribute->value, val);
+                attrNode->data = currAttribute;
+                break;
+            }
+            attrNode = attrNode->next;
+        }
+    }
+
+    if (attrNode == NULL) {
+        deleteSVG(currSVG);
+        return "ERROR:NOT_FOUND";
+    }
+
+    if (validateSVG(currSVG, "svg.xsd") == false) {
+        deleteSVG(currSVG);
+        return "ERROR:INVALID_SVG";
+    }
+
+    writeSVG(currSVG, fileName);
+    deleteSVG(currSVG);
+
+    return "success";
+}
+
+char* setGroupAttribute(char* fileName, int index, char* attribute, char* val) {
+    SVG* currSVG = createSVG(fileName);
+    ListIterator iter = createIterator(currSVG->groups);
+    Attribute* currAttribute;
+    Node* attrNode;
+    void* elem;
+
+    for (int i = 0; i < index; i++) {
+        elem = nextElement(&iter);
+    }
+    Group* currGroup = (Group*)elem;
+
+    attrNode = currGroup->otherAttributes->head;
+    while (attrNode != NULL) {
+        currAttribute = (Attribute*)attrNode->data;
+        if (strcmp(currAttribute->name, attribute) == 0) {
+            currAttribute = realloc(currAttribute, sizeof(Attribute) + strlen(val) + 1);
+            strcpy(currAttribute->value, val);
+            attrNode->data = currAttribute;
+            break;
+        }
+        attrNode = attrNode->next;
+    }
+
+    if (attrNode == NULL) {
+        deleteSVG(currSVG);
+        return "ERROR:NOT_FOUND";
+    }
+
+    if (validateSVG(currSVG, "svg.xsd") == false) {
+        deleteSVG(currSVG);
+        return "ERROR:INVALID_SVG";
+    }
+
+    writeSVG(currSVG, fileName);
+    deleteSVG(currSVG);
+    return "success";
+}
+
+char* setSVGTitle(char* fileName, char* title) {
+    SVG* currSVG = createSVG(fileName);
+    strcpy(currSVG->title, title);
+    if (validateSVG(currSVG, "svg.xsd")) {
+        writeSVG(currSVG, fileName);
+        free(currSVG);
+        return "success";
+    }
+
+    free(currSVG);
+    return "ERROR:INVALID_TITLE";
+}
+
+char* setSVGDesc(char* fileName, char* desc) {
+    SVG* currSVG = createSVG(fileName);
+    strcpy(currSVG->description, desc);
+
+    if (validateSVG(currSVG, "svg.xsd")) {
+        writeSVG(currSVG, fileName);
+        free(currSVG);
+        return "success";
+    }
+
+    free(currSVG);
+    return "ERROR:INVALID_DESCRIPTION";
+}
+
+char* createNewSVG(char* fileName, int hasRect, int hasCirc, int hasPath) {
+    SVG* newSVG = (SVG*)malloc(sizeof(SVG));
+    strcpy(newSVG->namespace, "http://www.w3.org/2000/svg");
+    strcpy(newSVG->title, "");
+    strcpy(newSVG->description, "");
+
+    newSVG->rectangles = initializeList(rectangleToString, deleteRectangle, compareRectangles);       // create empty rect list
+    newSVG->circles = initializeList(circleToString, deleteCircle, compareCircles);                   // create empty circle list
+    newSVG->paths = initializeList(pathToString, deletePath, comparePaths);                           // create empty path list
+    newSVG->groups = initializeList(groupToString, deleteGroup, compareGroups);                       // create empty group list
+    newSVG->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
+
+    if (hasRect == 1) {
+        Rectangle* newRect = (Rectangle*)malloc(sizeof(Rectangle));
+        newRect->x = 0;
+        newRect->y = 0;
+        newRect->width = 0;
+        newRect->height = 0;
+        strcpy(newRect->units, "");
+        newRect->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
+        insertBack(newSVG->rectangles, newRect);
+    }
+
+    if (hasCirc == 1) {
+        Circle* newCircle = (Circle*)malloc(sizeof(Circle));
+        newCircle->cx = 0;
+        newCircle->cy = 0;
+        newCircle->r = 0;
+        strcpy(newCircle->units, "");
+        newCircle->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
+        insertBack(newSVG->circles, newCircle);
+    }
+
+    if (hasPath == 1) {
+        Path* newPath = (Path*)malloc(sizeof(Path) + 2);
+        strcpy(newPath->data, "");
+        newPath->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
+        insertBack(newSVG->paths, newPath);
+    }
+
+    if (validateSVG(newSVG, "svg.xsd")) {
+        writeSVG(newSVG, fileName);
+        return "success";
+    }
+    else {
+        return "ERROR:SVG_FAILED_CREATION";
+    }
+}
+
+char* addRectangle(char* fileName, float xPos, float yPos, float width, float height) {
+    SVG* currSVG = createSVG(fileName);
+
+    Rectangle* newRect = (Rectangle*)malloc(sizeof(Rectangle));
+    newRect->x = xPos;
+    newRect->y = yPos;
+    newRect->width = width;
+    newRect->height = height;
+    strcpy(newRect->units, "");
+    newRect->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
+    insertBack(currSVG->rectangles, newRect);
+
+    if (validateSVG(currSVG, "svg.xsd")) {
+        writeSVG(currSVG, fileName);
+        free(currSVG);
+        return "success";
+    }
+    else {
+        free(currSVG);
+        return "ERROR:INVALID_SVG_CREATED";
+    }
+
+    return "ERROR:UNKNOW_FAIL";
+}
+
+char* addCircle(char* fileName, float cxPos, float cyPos, float radius) {
+    SVG* currSVG = createSVG(fileName);
+
+    Circle* newCircle = (Circle*)malloc(sizeof(Circle));
+    newCircle->cx = cxPos;
+    newCircle->cy = cyPos;
+    newCircle->r = radius;
+    strcpy(newCircle->units, "");
+    newCircle->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);  // create empty other list
+    insertBack(currSVG->circles, newCircle);
+
+    if (validateSVG(currSVG, "svg.xsd")) {
+        writeSVG(currSVG, fileName);
+        free(currSVG);
+        return "success";
+    }
+    else {
+        free(currSVG);
+        return "ERROR:INVALID_SVG_CREATED";
+    }
+
+    return "ERROR:UNKNOW_FAIL";
 }

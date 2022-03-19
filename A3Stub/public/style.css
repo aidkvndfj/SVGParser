@@ -37,6 +37,7 @@ input[type=submit], button {
 table, th, td{
     text-align: center;
     border: 2px solid;
+    word-break: break-all;
 }
 @media(max-width: 900px) {
     html {

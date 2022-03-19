@@ -64,8 +64,6 @@ app.post('/upload', function (req, res) {
 
             res.redirect('/');
         });
-    } else {
-        return res.status(500);
     }
 });
 
@@ -86,6 +84,19 @@ app.post('/removeUpload/:fileName', function (req, res) {
     fs.unlinkSync(`uploads/${req.params.fileName}`);
 });
 
+app.get('/alreadyUpload/:fileName', function (req, res) {
+    let fileName = req.params.fileName;
+    let allFiles = fs.readdirSync('./uploads');
+
+    for (let i = 0; i < allFiles.length; i++) {
+        if (allFiles[i] == fileName) {
+            res.send(false);
+        }
+    }
+
+    res.send(true);
+});
+
 const svgParser = ffi.Library('./parser/bin/libsvgparser.so', {
     'rectsInSVG': ['int', ['String', 'String']], // Get the total rects in a filename svg
     'circsInSVG': ['int', ['String', 'String']], // get the total circles in a filename svg
@@ -103,7 +114,99 @@ const svgParser = ffi.Library('./parser/bin/libsvgparser.so', {
     'requestIndexCircAttrs': ['String', ['String', 'int']], // Get the attributes from a single circle struct
     'requestIndexPathAttrs': ['String', ['String', 'int']], // Get the attributes from a single path struct
     'requestIndexGroupAttrs': ['String', ['String', 'int']], // Get the attributes from a single group struct
+    'setRectAttribute': ['String', ['String', 'int', 'String', 'String']],
     'setCircAttribute': ['String', ['String', 'int', 'String', 'String']],
+    'setPathAttribute': ['String', ['String', 'int', 'String', 'String']],
+    'setGroupAttribute': ['String', ['String', 'int', 'String', 'String']],
+    'setSVGTitle': ['String', ['String', 'String']],
+    'setSVGDesc': ['String', ['String', 'String']],
+    'createNewSVG': ['String', ['String', 'int', 'int', 'int']],
+    'addRectangle': ['String', ['String', 'float', 'float', 'float', 'float']],
+    'addCircle': ['String', ['String', 'float', 'float', 'float']],
+});
+
+app.get('/createSVG/', function (req, res) {
+    let svgName = req.query.svgName;
+    let svgTitle = req.query.svgTitle;
+    let svgDesc = req.query.svgDesc;
+    let xPos = req.query.xPos;
+    let yPos = req.query.yPos;
+    let rectHeight = req.query.rectHeight;
+    let rectWidth = req.query.rectWidth;
+    let cxPos = req.query.cxPos;
+    let cyPos = req.query.cyPos;
+    let radius = req.query.radius;
+    let pathData = req.query.pathData;
+
+    let allFiles = fs.readdirSync('./uploads');
+    for (let i = 0; i < allFiles.length; i++) {
+        if (allFiles[i] == `${svgName}.svg`) {
+            res.send({ response: `ERROR:EXISTING_SVG` });
+        }
+    }
+
+    let makeRect = 0;
+    let makeCirc = 0;
+    let makePath = 0;
+
+    if (!(xPos == 0 && yPos == 0 && rectHeight == 0 && rectWidth == 0)) {
+        makeRect = 1;
+    }
+    if (!(cxPos == 0 && cyPos == 0 && radius == 0)) {
+        makeCirc = 1;
+    }
+    if (!(pathData == '')) {
+        makePath = 1;
+    }
+
+    svgParser.createNewSVG(`uploads/${svgName}.svg`, makeRect, makeCirc, makePath);
+
+    if (makeRect == 1) {
+        if ((svgParser.setRectAttribute(`uploads/${svgName}.svg`, 1, 'x', xPos)) != 'success') {
+            fs.unlinkSync(`uploads/${svgName}.svg`);
+            res.send({ response: 'ERROR:INVALID_XVAL' });
+            return;
+        }
+        if ((svgParser.setRectAttribute(`uploads/${svgName}.svg`, 1, 'y', yPos)) != 'success') {
+            fs.unlinkSync(`uploads/${svgName}.svg`);
+            res.send({ response: 'ERROR:INVALID_YVAL' });
+            return;
+        }
+        if ((svgParser.setRectAttribute(`uploads/${svgName}.svg`, 1, 'width', rectWidth)) != 'success') {
+            fs.unlinkSync(`uploads/${svgName}.svg`);
+            res.send({ response: 'ERROR:INVALID_WIDTH' });
+            return;
+        }
+        if ((svgParser.setRectAttribute(`uploads/${svgName}.svg`, 1, 'height', rectHeight)) != 'success') {
+            fs.unlinkSync(`uploads/${svgName}.svg`);
+            res.send({ response: 'ERROR:INVALID_HEIGHT' });
+            return;
+        }
+    }
+
+    if (makeCirc == 1) {
+        if ((svgParser.setCircAttribute(`uploads/${svgName}.svg`, 1, 'cx', cxPos)) != 'success') {
+            res.send({ response: 'ERROR:INVALID_CENTERX' });
+            return;
+        }
+        if ((svgParser.setCircAttribute(`uploads/${svgName}.svg`, 1, 'cy', cyPos)) != 'success') {
+            res.send({ response: 'ERROR:INVALID_CENTERY' });
+            return;
+        }
+        if ((svgParser.setCircAttribute(`uploads/${svgName}.svg`, 1, 'r', radius)) != 'success') {
+            res.send({ response: 'ERROR:INVALID_RADIUS' });
+            return;
+        }
+    }
+
+    if (makePath == 1) {
+        if (svgParser.setPathAttribute(`uploads/${svgName}.svg`, 1, 'data', pathData) != 'success') {
+            res.send({ response: 'ERROR:INVALID_DATA' });
+            return;
+        }
+    }
+
+    res.send({ response: 'success' });
 });
 
 app.get('/SVGtoJSON/:fileName', function (req, res) {
@@ -159,7 +262,6 @@ app.get('/CompToJSON/', function (req, res) {
 app.get('/uploadSVG', function (req, res) {
     console.log("Starting upload SVG");
     let allFiles = fs.readdirSync('./uploads');
-    let nextIndex = 0;
     var allSVGs = [];
 
     for (let i = 0; i < allFiles.length; i++) {
@@ -188,7 +290,7 @@ app.get('/putAttribute/', function (req, res) {
 
     switch (splitComp[0]) {
         case "Rectangle":
-
+            var result = svgParser.setRectAttribute(`uploads/${fileName}`, splitComp[1], attribute, input);
             break;
 
         case "Circle":
@@ -196,11 +298,11 @@ app.get('/putAttribute/', function (req, res) {
             break;
 
         case "Path":
-
+            var result = svgParser.setPathAttribute(`uploads/${fileName}`, splitComp[1], attribute, input);
             break;
 
         case "Group":
-
+            var result = svgParser.setGroupAttribute(`uploads/${fileName}`, splitComp[1], attribute, input);
             break;
 
         default:
@@ -208,8 +310,63 @@ app.get('/putAttribute/', function (req, res) {
             break;
     }
 
-    res.send({ result: result });
+    if (svgParser.isValidSVG(`uploads/${fileName}`, 'svg.xsd'))
+        res.send({ result: result });
+    else
+        res.send({ result: "ERROR:INVALID_SVG" });
+
+
 });
+
+app.get('/putTitle/', function (req, res) {
+    let input = req.query.input;
+    let element = req.query.element;
+    let fileName = req.query.fileName;
+    console.log(fileName, input, element);
+
+    switch (element) {
+        case "Title":
+            var result = svgParser.setSVGTitle(`uploads/${fileName}`, input);
+            break;
+
+        case "Description":
+            var result = svgParser.setSVGDesc(`uploads/${fileName}`, input);
+            break;
+
+        default:
+            console.log(`element is a invalid type`);
+            break;
+    }
+
+    if (svgParser.isValidSVG(`uploads/${fileName}`, 'svg.xsd'))
+        res.send({ result: result });
+    else
+        res.send({ result: "ERROR:INVALID_SVG" });
+
+
+});
+
+app.get('/addShape/', function (req, res) {
+    let fileName = req.query.fileName;
+    let type = req.query.type;
+    let dataJSON = req.query.dataJSON;
+
+    switch (type) {
+        case 'Rectangle':
+            res.send({ result: svgParser.addRectangle(`uploads/${fileName}`, dataJSON['xPos'], dataJSON['yPos'], dataJSON['rectWidth'], dataJSON['rectHeight']) });
+            break;
+
+        case 'Circle':
+            res.send({ result: svgParser.addCircle(`uploads/${fileName}`, dataJSON['cxPos'], dataJSON['cyPos'], dataJSON['radius']) });
+            break;
+
+        default:
+            res.send({ result: "ERROR:BROKEN" });
+            break;
+
+    }
+});
+
 
 app.listen(portNum);
 console.log('Running app at localhost: ' + portNum);

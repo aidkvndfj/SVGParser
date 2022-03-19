@@ -24,14 +24,18 @@ jQuery(document).ready(function () {
                     } else {
                         $('#fileLogTable').append(`<tr><td><a download='${data[i][0]}' href='uploads/${data[i][0]}' title='${data[i][0]}'><img width=200px src='/uploads/${data[i][0]}'></a></td><td><a download='${data[i][0]}' href='uploads/${data[i][0]}' title='${data[i][0]}'>${data[i][0]}</a></td><td>${data[i][1]}KB</td><td>${data[i][2]}</td><td>${data[i][3]}</td><td>${data[i][4]}</td><td>${data[i][5]}</td></tr>`);
 
-                        if (i == 0)
+                        if (i == 0) {
                             $('#SVGDropDown').append("<option selected>" + data[i][0] + "</option>");
-                        else
+                            $('#shapeSVGDropDown').append("<option selected>" + data[i][0] + "</option>");
+                        } else {
                             $('#SVGDropDown').append("<option>" + data[i][0] + "</option>");
+                            $('#shapeSVGDropDown').append("<option>" + data[i][0] + "</option>");
+                        }
 
                     }
                 }
                 SVGDropChange();
+                tableSVGDropChange();
             }
 
         },
@@ -224,7 +228,7 @@ jQuery(document).ready(function () {
         CompDropChange();
     });
 
-    document.getElementById('changeButton').onclick = function () {
+    document.getElementById('changeAttrButton').onclick = function () {
         let userInput = document.getElementById('charAttrInput').value
         let attribute = $('#changeAttrDropBox option:selected').text();
         console.log(`Change ${attribute} with ${userInput}`);
@@ -244,10 +248,15 @@ jQuery(document).ready(function () {
                     case 'success':
                         alert("Good Change");
                         location.reload();
+                        // CompDropChange();
                         break;
 
                     case 'ERROR:NOT_FOUND':
                         alert(`No attribute ${attribute}`);
+                        break;
+
+                    case 'ERROR:INVALID_SVG':
+                        alert(`${userInput} is invalid for ${attribute}`);
                         break;
 
                     default:
@@ -260,5 +269,250 @@ jQuery(document).ready(function () {
             }
         });
     };
+
+    document.getElementById('changeTitleButton').onclick = function () {
+        let userInput = document.getElementById('changeTitleInput').value
+        let element = $('#changeTitleDropBox option:selected').text();
+        console.log(`Change ${element} with ${userInput}`);
+
+        $.ajax({
+            type: 'get',
+            dataType: 'json',
+            url: './putTitle/',
+            data: {
+                input: userInput,
+                element: element,
+                fileName: $('#SVGDropDown option:selected').text(),
+            },
+            success: function (data) {
+                switch (data['result']) {
+                    case 'success':
+                        alert("Good Change");
+                        location.reload();
+                        break;
+
+                    case 'ERROR:INVALID_TITLE':
+                    case 'ERROR:INVALID_DESCRIPTION':
+                        alert(`${userInput} make ${fileName} a invalid SVG.`);
+                        break;
+
+                    default:
+                        alert("you should never see this <3");
+                        break;
+                }
+            },
+            fail: function (err) {
+                console.log(err);
+            }
+        });
+    };
+
+    $('#createSVGForms').submit(function (data) {
+        data.preventDefault();
+        let svgName = $('#svgName').val();
+        let svgTitle = $('#svgTitle').val();
+        let svgDesc = $('#svgDesc').val();
+        let xPos = $('#xPos').val();
+        let yPos = $('#yPos').val();
+        let rectHeight = $('#rectHeight').val();
+        let rectWidth = $('#rectWidth').val();
+        let cxPos = $('#cxPos').val();
+        let cyPos = $('#cyPos').val();
+        let radius = $('#radius').val();
+        let pathData = $('#pathData').val();
+
+        $.ajax({
+            type: 'get',
+            dataType: 'json',
+            url: '/createSVG/',
+            data: {
+                svgName: svgName,
+                svgTitle: svgTitle,
+                svgDesc: svgDesc,
+                xPos: xPos,
+                yPos: yPos,
+                rectHeight: rectHeight,
+                rectWidth: rectWidth,
+                cxPos: cxPos,
+                cyPos: cyPos,
+                radius: radius,
+                pathData: pathData,
+            },
+            success: function (data) {
+                console.log(data['response']);
+                switch (data['response']) {
+                    case 'success':
+                        alert(`${svgName} successfully created`);
+                        location.reload();
+                        break;
+
+                    case 'ERROR:EXISTING_SVG':
+                        alert(`${svgName} already exists`);
+                        break;
+
+                    case 'ERROR:INVALID_DATA':
+                        alert(`${pathData} is invalid path data`);
+                        break;
+
+                    case 'ERROR:INVALID_XVAL':
+                        alert(`${xPos} is invalid rect x`);
+                        break;
+
+                    case 'ERROR:INVALID_YVAL':
+                        alert(`${yPos} is invalid rect y`);
+                        break;
+
+                    case 'ERROR:INVALID_WIDTH':
+                        alert(`${rectWidth} is invalid rect width`);
+                        break;
+
+                    case 'ERROR:INVALID_HEIGHT':
+                        alert(`${rectHeight} is invalid rect height`);
+                        break;
+
+                    case 'ERROR:INVALID_CENTERX':
+                        alert(`${cxPos} is invalid circle center x pos`);
+                        break;
+
+                    case 'ERROR:INVALID_CENTERY':
+                        alert(`${cyPos} is invalid circle center y pos`);
+                        break;
+
+                    case 'ERROR:INVALID_RADIUS':
+                        alert(`${radius} is invalid circle radius`);
+                        break;
+
+
+                    default:
+                        alert(`new error ${data['response']} or something went very wrong`);
+                        break;
+                }
+            },
+            fail: function (err) {
+                console.log(err);
+                alert(err);
+            }
+        });
+    });
+
+    function tableSVGDropChange() {
+        let shapeType = $('#shapeTypeDropDown option:selected').text();
+        $('#dynamicMenu').html('');
+
+        switch (shapeType) {
+            case 'Rectangle':
+                $('#dynamicMenu').append(`<tr>
+                <td colspan="2">Add Rect</td>
+            </tr>
+            <tr>
+                <td colspan="1" style="width: 30%;"><label for="addXPos">X Position:</label></td>
+                <td colspan="1" style="width: 70%;"><input type="text" id="addXPos" name="addXPos" value="0"
+                        size="40"></td>
+            </tr>
+            <tr>
+                <td colspan="1" style="width: 30%;"><label for="addYPos">Y Position:</label></td>
+                <td colspan="1" style="width: 70%;"><input type="text" id="addYPos" name="addYPos" value="0"
+                        size="40"></td>
+            </tr>
+            <tr>
+                <td colspan="1" style="width: 30%;"><label for="addRectHeight">Height:</label></td>
+                <td colspan="1" style="width: 70%;"><input type="text" id="addRectHeight" name="addRectHeight"
+                        value="0" size="40"></td>
+            </tr>
+            <tr>
+                <td colspan="1" style="width: 30%;"><label for="addRectWidth">Width:</label></td>
+                <td colspan="1" style="width: 70%;"><input type="text" id="addRectWidth" name="addRectWidth" value="0"
+                        size="40"></td>
+            </tr>`)
+                break;
+
+            case 'Circle':
+                $('#dynamicMenu').append(`<tr>
+                <td colspan="2">Add Circle</td>
+            </tr>
+            <tr>
+                <td colspan="1" style="width: 30%;"><label for="addCXPos">X Position:</label></td>
+                <td colspan="1" style="width: 70%;"><input type="text" id="addCXPos" name="addCXPos" value="0"
+                        size="40"></td>
+            </tr>
+            <tr>
+                <td colspan="1" style="width: 30%;"><label for="addCYPos">Y Position:</label></td>
+                <td colspan="1" style="width: 70%;"><input type="text" id="addCYPos" name="addCYPos" value="0"
+                        size="40"></td>
+            </tr>
+            <tr>
+                <td colspan="1" style="width: 30%;"><label for="addRadius">Radius:</label></td>
+                <td colspan="1" style="width: 70%;"><input type="text" id="addRadius" name="addRadius" value="0"
+                        size="40"></td>
+            </tr>`);
+                break;
+
+
+            default:
+                alert("YOU SHOULD NEVER GET HERE <3");
+                break;
+        }
+    }
+
+    $('#shapeTypeDropDown').change(function () {
+        tableSVGDropChange();
+    });
+
+    $('#addShapeForm').submit(function (data) {
+        data.preventDefault();
+        let fileName = $('#shapeSVGDropDown option:selected').text();
+        let type = $('#shapeTypeDropDown option:selected').text();
+
+        // console.log($('#addXPos').val());
+
+        switch (type) {
+            case 'Rectangle':
+                var dataJSON = {
+                    xPos: $('#addXPos').val(),
+                    yPos: $('#addYPos').val(),
+                    rectHeight: $('#addRectHeight').val(),
+                    rectWidth: $('#addRectWidth').val(),
+                }
+                break;
+
+            case 'Circle':
+                var dataJSON = {
+                    cxPos: $('#addCXPos').val(),
+                    cyPos: $('#addCYPos').val(),
+                    radius: $('#radius').val(),
+                }
+                break;
+        }
+
+        console.log(dataJSON);
+        $.ajax({
+            type: 'get',
+            dataType: 'json',
+            url: '/addShape/',
+            data: {
+                fileName: fileName,
+                type: type,
+                dataJSON: dataJSON,
+            },
+            success: function (data) {
+                switch (data['result']) {
+                    case 'success':
+                        alert(`${type} successfully added to ${fileName}`);
+                        location.reload();
+                        break;
+
+                    case 'ERROR:INVALID_SVG_CREATED':
+                        alert(`${type} was not successfully added to ${fileName}, would create invalid SVG`);
+                        break;
+
+                    case 'ERROR:BROKEN':
+                        alert(`Something very bad has occured`);
+
+                    default:
+                        alert('Something very very worse has occurred');
+                }
+            }
+        });
+    });
 
 });

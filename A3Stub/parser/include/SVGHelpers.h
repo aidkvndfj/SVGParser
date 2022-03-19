@@ -156,6 +156,17 @@ char* requestIndexCircAttrs(char* fileName, int index);
 char* requestIndexPathAttrs(char* fileName, int index);
 char* requestIndexGroupAttrs(char* fileName, int index);
 
+char* setRectAttribute(char* fileName, int index, char* attribute, char* val);
 char* setCircAttribute(char* fileName, int index, char* attribute, char* val);
+char* setPathAttribute(char* fileName, int index, char* attribute, char* val);
+char* setGroupAttribute(char* fileName, int index, char* attribute, char* val);
+
+char* setSVGTitle(char* fileName, char* title);
+char* setSVGDesc(char* fileName, char* desc);
+
+char* createNewSVG(char* fileName, int hasRect, int hasCirc, int hasPath);
+
+char* addRectangle(char* fileName, float xPos, float yPos, float width, float height);
+char* addCircle(char* fileName, float cxPos, float cyPos, float radius);
 
 #endif
