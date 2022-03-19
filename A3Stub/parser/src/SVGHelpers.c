@@ -741,3 +741,121 @@ char* requestSVGGroups(char* fileName, char* schemaFile) {
     deleteSVG(currSVG);
     return json;
 }
+
+char* requestIndexRectAttrs(char* fileName, int index) {
+    SVG* currSVG = createSVG(fileName);
+    ListIterator iter = createIterator(currSVG->rectangles);
+    void* elem;
+
+    for (int i = 0; i < index; i++) {
+        elem = nextElement(&iter);
+    }
+
+    Rectangle* currRect = (Rectangle*)elem;
+
+    char* json = attrListToJSON(currRect->otherAttributes);
+
+    deleteSVG(currSVG);
+
+    return json;
+}
+
+char* requestIndexCircAttrs(char* fileName, int index) {
+    SVG* currSVG = createSVG(fileName);
+    ListIterator iter = createIterator(currSVG->circles);
+    void* elem;
+
+    for (int i = 0; i < index; i++) {
+        elem = nextElement(&iter);
+    }
+
+    Circle* currCircle = (Circle*)elem;
+
+    char* json = attrListToJSON(currCircle->otherAttributes);
+
+    deleteSVG(currSVG);
+
+    return json;
+}
+
+char* requestIndexPathAttrs(char* fileName, int index) {
+    SVG* currSVG = createSVG(fileName);
+    ListIterator iter = createIterator(currSVG->paths);
+    void* elem;
+
+    for (int i = 0; i < index; i++) {
+        elem = nextElement(&iter);
+    }
+
+    Path* currPath = (Path*)elem;
+
+    char* json = attrListToJSON(currPath->otherAttributes);
+
+    deleteSVG(currSVG);
+
+    return json;
+}
+
+char* requestIndexGroupAttrs(char* fileName, int index) {
+    SVG* currSVG = createSVG(fileName);
+    ListIterator iter = createIterator(currSVG->groups);
+    void* elem;
+
+    for (int i = 0; i < index; i++) {
+        elem = nextElement(&iter);
+    }
+
+    Group* currGroup = (Group*)elem;
+
+    char* json = attrListToJSON(currGroup->otherAttributes);
+
+    deleteSVG(currSVG);
+
+    return json;
+}
+
+char* setCircAttribute(char* fileName, int index, char* attribute, char* val) {
+    SVG* currSVG = createSVG(fileName);
+    ListIterator iter = createIterator(currSVG->circles);
+    Attribute* currAttribute;
+    Node* attrNode;
+    void* elem;
+
+    for (int i = 0; i < index; i++) {
+        elem = nextElement(&iter);
+    }
+    Circle* currCircle = (Circle*)elem;
+
+    if (strcmp(attribute, "cx") == 0) {
+        currCircle->cx = atof(val);
+    }
+    else if (strcmp(attribute, "cy") == 0) {
+        currCircle->cy = atof(val);
+    }
+    else if (strcmp(attribute, "r") == 0) {
+        currCircle->r = atof(val);
+    }
+    else {
+        attrNode = currCircle->otherAttributes->head;
+        while (attrNode != NULL) {
+            currAttribute = (Attribute*)attrNode->data;
+            if (strcmp(currAttribute->name, attribute) == 0) {
+                currAttribute = realloc(currAttribute, sizeof(Attribute) + strlen(val) + 1);
+                strcpy(currAttribute->value, val);
+                attrNode->data = currAttribute;
+                break;
+            }
+            attrNode = attrNode->next;
+        }
+    }
+
+    if (attrNode == NULL) {
+        deleteSVG(currSVG);
+        return "ERROR:NOT_FOUND";
+    }
+
+    writeSVG(currSVG, fileName);
+    deleteSVG(currSVG);
+
+    return "success";
+}

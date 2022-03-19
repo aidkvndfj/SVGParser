@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <title>Eric Morse - SVG Image Viewer</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -54,10 +55,6 @@
 
     <h4>SVG View Panel</h4>
 
-    <label for="files">Select file to display:</label>
-    <select name="files" class="dropdown" id="dropdown">
-        <option selected>None</option>
-    </select>
     <div id="SVGViewPanel" class="panel">
         <div id="viewPanel">
             <table class="table" id="viewTable">
@@ -86,6 +83,46 @@
             </table>
         </div>
     </div>
+
+    <label for="files">Select file to display:</label>
+    <select name="files" class="SVGDropDown" id="SVGDropDown">
+    </select>
+
+    <br>
+
+    <label for="files">Select Component to display:</label>
+    <select name="files" class="CompDropDown" id="CompDropDown">
+    </select>
+
+    <table class="table" id="attrTable">
+        <tr>
+            <th style="width: 35%;" colspan="1">Attribute</th>
+            <th style="width: 65%;" colspan="2">Data</th>
+        </tr>
+        <tbody id="attrTableBody">
+        </tbody>
+    </table>
+
+    <table class="table" id="changeAttrTable">
+        <thead>
+            <tr>
+                <th colspan="2">Change Attributes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="1" style="width: 45%;">
+                    <label for="files">Select Attribute to change:</label>
+                    <select name="files" class="changeAttrDropBox" id="changeAttrDropBox">
+                    </select>
+                </td>
+                <td colspan="2" style="width: 55%;">
+                    <input id="charAttrInput" type="text" size="40">
+                    <input id="changeButton" type="submit" value='Change' class="btn btn-secondary">
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
 
     <!-- Leave me at the bottom of body -->

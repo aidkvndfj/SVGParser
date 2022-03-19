@@ -47,14 +47,26 @@ app.post('/upload', function (req, res) {
 
     let uploadFile = req.files.uploadFile;
 
-    // Use the mv() method to place the file somewhere on your server
-    uploadFile.mv('uploads/' + uploadFile.name, function (err) {
-        if (err) {
-            return res.status(500).send(err);
-        }
+    let uploadedFiles = fs.readdirSync('./uploads');
+    let isAdded = false;
 
-        res.redirect('/');
-    });
+    for (let i = 0; i < uploadedFiles.length; i++) {
+        if (uploadedFiles[i] == uploadFile.name) {
+            isAdded = true;
+        }
+    }
+
+    if (!isAdded) {
+        uploadFile.mv('uploads/' + uploadFile.name, function (err) {
+            if (err) {
+                return res.status(500).send(err);
+            }
+
+            res.redirect('/');
+        });
+    } else {
+        return res.status(500);
+    }
 });
 
 //Respond to GET requests for files in the uploads/ directory
@@ -70,6 +82,10 @@ app.get('/uploads/:name', function (req, res) {
 });
 
 //******************** Your code goes here ******************** 
+app.post('/removeUpload/:fileName', function (req, res) {
+    fs.unlinkSync(`uploads/${req.params.fileName}`);
+});
+
 const svgParser = ffi.Library('./parser/bin/libsvgparser.so', {
     'rectsInSVG': ['int', ['String', 'String']], // Get the total rects in a filename svg
     'circsInSVG': ['int', ['String', 'String']], // get the total circles in a filename svg
@@ -83,19 +99,61 @@ const svgParser = ffi.Library('./parser/bin/libsvgparser.so', {
     'requestSVGCircles': ['String', ['String', 'String']], // get the circle list of a filename svg as a json
     'requestSVGPaths': ['String', ['String', 'String']], // get the path list of a filename svg as a json
     'requestSVGGroups': ['String', ['String', 'String']], // get the group list of a filename svg as a json
+    'requestIndexRectAttrs': ['String', ['String', 'int']], // Get the attributes from a single rect struct
+    'requestIndexCircAttrs': ['String', ['String', 'int']], // Get the attributes from a single circle struct
+    'requestIndexPathAttrs': ['String', ['String', 'int']], // Get the attributes from a single path struct
+    'requestIndexGroupAttrs': ['String', ['String', 'int']], // Get the attributes from a single group struct
+    'setCircAttribute': ['String', ['String', 'int', 'String', 'String']],
 });
 
 app.get('/SVGtoJSON/:fileName', function (req, res) {
+    console.log("Starting SVGtoJSON");
     let fileName = req.params.fileName;
 
     if (svgParser.isValidSVG('uploads/' + fileName, "svg.xsd")) {
         let catFileName = 'uploads/' + fileName;
         let xsd = "svg.xsd";
-        let totalJSON = '[' + svgParser.requestSVGRects(catFileName, xsd) + ',' + svgParser.requestSVGCircles(catFileName, xsd) + ']';
+        let totalJSON = '[' + svgParser.requestSVGRects(catFileName, xsd) + ',' + svgParser.requestSVGCircles(catFileName, xsd) + ',' + svgParser.requestSVGPaths(catFileName, xsd) + ',' + svgParser.requestSVGGroups(catFileName, xsd) + ']';
         res.send({ Title: svgParser.requestSVGTitle(catFileName, xsd), Desc: svgParser.requestSVGDesc(catFileName, xsd), Attrs: totalJSON });
     } else {
-        alert(`${fileName} is a invalid SVG`);
+        res.send({ Title: "ERROR:INVALID_SVG", Desc: fileName });
     }
+
+    console.log("Ending SVGtoJSON");
+});
+
+app.get('/CompToJSON/', function (req, res) {
+    let fileName = req.query.fileName;
+    let wholeComponent = req.query.comp;
+    let component = wholeComponent.split(" ");
+
+    console.log("Starting CompToJSON");
+
+    // console.log(fileName);
+    // console.log(component);
+
+    switch (component[0]) {
+        case "Rectangle":
+            res.send(svgParser.requestIndexRectAttrs('uploads/' + fileName, component[1]));
+            break;
+
+        case "Circle":
+            res.send(svgParser.requestIndexCircAttrs('uploads/' + fileName, component[1]));
+            break;
+
+        case "Path":
+            res.send(svgParser.requestIndexPathAttrs('uploads/' + fileName, component[1]));
+            break;
+
+        case "Group":
+            res.send(svgParser.requestIndexGroupAttrs('uploads/' + fileName, component[1]));
+            break;
+
+        default:
+            console.log(`${component[0]} is a invalid type`);
+            break;
+    }
+    console.log("Ending CompToJSON");
 });
 
 app.get('/uploadSVG', function (req, res) {
@@ -109,15 +167,48 @@ app.get('/uploadSVG', function (req, res) {
             var fileInfo = fs.statSync("uploads/" + allFiles[i]);
             var size = fileInfo['size'];
             let parsedJSON = JSON.parse(svgParser.validSVGToJSON("uploads/" + allFiles[i], 'svg.xsd'));
-            allSVGs[nextIndex] = [allFiles[i], Math.round(size / 1024), parsedJSON['numRect'], parsedJSON['numCirc'], parsedJSON['numPaths'], parsedJSON['numGroups']];
-            nextIndex += 1;
+            allSVGs[i] = [allFiles[i], Math.round(size / 1024), parsedJSON['numRect'], parsedJSON['numCirc'], parsedJSON['numPaths'], parsedJSON['numGroups']];
         } else {
-            alert(`${fileName} is a invalid SVG`);
+            allSVGs[i] = ["ERROR:INVALID_SVG", allFiles[i]];
+            console.log(`${allFiles[i]} is a invalid SVG`);
         }
     }
 
     console.log("Ending upload SVG");
     res.send(allSVGs);
+});
+
+app.get('/putAttribute/', function (req, res) {
+    let input = req.query.input;
+    let attribute = req.query.attr;
+    let fileName = req.query.fileName;
+    let component = req.query.element;
+    let splitComp = component.split(" ");
+    console.log(component, fileName, input, attribute);
+
+    switch (splitComp[0]) {
+        case "Rectangle":
+
+            break;
+
+        case "Circle":
+            var result = svgParser.setCircAttribute('uploads/' + fileName, splitComp[1], attribute, input);
+            break;
+
+        case "Path":
+
+            break;
+
+        case "Group":
+
+            break;
+
+        default:
+            console.log(`${splitComp[0]} is a invalid type`);
+            break;
+    }
+
+    res.send({ result: result });
 });
 
 app.listen(portNum);

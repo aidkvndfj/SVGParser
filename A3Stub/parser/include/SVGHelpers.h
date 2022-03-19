@@ -151,4 +151,11 @@ char* requestSVGCircles(char* fileName, char* schemaFile);
 char* requestSVGPaths(char* fileName, char* schemaFile);
 char* requestSVGGroups(char* fileName, char* schemaFile);
 
+char* requestIndexRectAttrs(char* fileName, int index);
+char* requestIndexCircAttrs(char* fileName, int index);
+char* requestIndexPathAttrs(char* fileName, int index);
+char* requestIndexGroupAttrs(char* fileName, int index);
+
+char* setCircAttribute(char* fileName, int index, char* attribute, char* val);
+
 #endif
